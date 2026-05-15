@@ -172,7 +172,7 @@ export default function ListingDetail() {
   const serviceCharge = Number(listing.serviceCharge ?? 0);
   const grandTotal = Number(listing.rent) + billsTotal + serviceCharge;
   const images = listing.images ?? [];
-  const videos = (listing as any).videos ?? [];
+  const videos = listing.videos ?? [];
 
   const featureItems = [
     { active: listing.hasLift, label: "Lift" },

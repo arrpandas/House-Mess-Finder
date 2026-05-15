@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, useParams } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -184,6 +184,106 @@ export default function ListingForm() {
     }
   }, [existingListing, form]);
 
+  const { mutateAsync: requestUploadUrl } = useRequestUploadUrl();
+
+  const uploadFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    console.log(`Starting upload for ${files.length} files...`);
+    setUploadingCount((c) => c + files.length);
+
+    const imagePaths: string[] = [];
+    const videoPaths: string[] = [];
+
+    for (const file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+
+      if (!isImage && !isVideo) {
+        console.warn(`Skipping file ${file.name} as it's neither image nor video.`);
+        toast({ title: `Skipping ${file.name}: Not an image or video`, variant: "destructive" });
+        setUploadingCount((c) => c - 1);
+        continue;
+      }
+
+      try {
+        console.log(`Requesting upload URL for ${file.name}...`);
+        const result = await requestUploadUrl({
+          data: {
+            name: file.name,
+            size: file.size,
+            contentType: file.type,
+          },
+        });
+
+        console.log(`Uploading ${file.name} to storage...`);
+        const uploadResponse = await fetch(result.uploadURL, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!uploadResponse.ok) throw new Error("Upload failed");
+
+        console.log(`Successfully uploaded ${file.name}. Path: ${result.objectPath}`);
+        if (isImage) imagePaths.push(result.objectPath);
+        else videoPaths.push(result.objectPath);
+      } catch (err) {
+        console.error(`Error uploading ${file.name}:`, err);
+        toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
+      } finally {
+        setUploadingCount((c) => c - 1);
+      }
+    }
+
+    if (imagePaths.length > 0) setUploadedImages((prev) => [...prev, ...imagePaths]);
+    if (videoPaths.length > 0) setUploadedVideos((prev) => [...prev, ...videoPaths]);
+  }, [requestUploadUrl, toast]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    uploadFiles(files);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+  const handleDragEnter = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault(); e.stopPropagation(); setIsDragging(false);
+    console.log("Files dropped!");
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      console.log("Paste detected!");
+      let files: File[] = [];
+      
+      if (e.clipboardData?.files && e.clipboardData.files.length > 0) {
+        files = Array.from(e.clipboardData.files);
+      } else if (e.clipboardData?.items) {
+        const items = Array.from(e.clipboardData.items);
+        for (const item of items) {
+          if (item.type.startsWith("image/") || item.type.startsWith("video/")) {
+            const file = item.getAsFile();
+            if (file) files.push(file);
+          }
+        }
+      }
+      
+      if (files.length > 0) {
+        console.log(`Found ${files.length} files in clipboard.`);
+        uploadFiles(files);
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [uploadFiles]);
+
   const createMutation = useCreateListing({
     mutation: {
       onSuccess: () => {
@@ -204,94 +304,6 @@ export default function ListingForm() {
       },
     },
   });
-
-  const requestUploadUrlMutation = useRequestUploadUrl();
-
-  const uploadFiles = async (files: File[]) => {
-    if (files.length === 0) return;
-    setUploadingCount((c) => c + files.length);
-
-    const imagePaths: string[] = [];
-    const videoPaths: string[] = [];
-
-    for (const file of files) {
-      const isImage = file.type.startsWith("image/");
-      const isVideo = file.type.startsWith("video/");
-
-      if (!isImage && !isVideo) {
-        toast({ title: `Skipping ${file.name}: Not an image or video`, variant: "destructive" });
-        setUploadingCount((c) => c - 1);
-        continue;
-      }
-
-      try {
-        const result = await new Promise<{ uploadURL: string; objectPath: string }>(
-          (resolve, reject) => {
-            requestUploadUrlMutation.mutate(
-              {
-                data: {
-                  name: file.name,
-                  size: file.size,
-                  contentType: file.type,
-                },
-              },
-              {
-                onSuccess: (data) => resolve(data),
-                onError: (err) => reject(err),
-              }
-            );
-          }
-        );
-
-        await fetch(result.uploadURL, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
-
-        if (isImage) imagePaths.push(result.objectPath);
-        else videoPaths.push(result.objectPath);
-      } catch {
-        toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
-      } finally {
-        setUploadingCount((c) => c - 1);
-      }
-    }
-
-    setUploadedImages((prev) => [...prev, ...imagePaths]);
-    setUploadedVideos((prev) => [...prev, ...videoPaths]);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    uploadFiles(files);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
-  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault(); setIsDragging(false);
-    uploadFiles(Array.from(e.dataTransfer.files));
-  };
-
-  useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
-      const items = Array.from(e.clipboardData?.items ?? []);
-      const files: File[] = [];
-      for (const item of items) {
-        if (item.type.startsWith("image/") || item.type.startsWith("video/")) {
-          const file = item.getAsFile();
-          if (file) files.push(file);
-        }
-      }
-      if (files.length > 0) uploadFiles(files);
-    };
-    window.addEventListener("paste", handlePaste);
-    return () => window.removeEventListener("paste", handlePaste);
-  }, [requestUploadUrlMutation]);
 
   const addPro = () => {
     const trimmed = newPro.trim();
@@ -499,14 +511,19 @@ export default function ListingForm() {
               <p className="text-xs text-muted-foreground mt-[-10px]">Tip: Drag & drop or paste images/videos anywhere!</p>
               <div
                 className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/5" : "hover:border-primary"}`}
-                onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop}
               >
                 {uploadingCount > 0 ? (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="text-sm">Uploading {uploadingCount} files...</p></div>
                 ) : isDragging ? (
                   <div className="flex flex-col items-center gap-2 text-primary"><Upload className="w-8 h-8 animate-bounce" /><p className="text-sm font-bold">Drop files here</p></div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground"><ImagePlus className="w-8 h-8 opacity-50" /><p className="text-sm font-medium">Click to upload, or drag & drop</p><p className="text-xs">JPG, PNG, WEBP, MP4, WebM</p></div>
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <ImagePlus className="w-8 h-8 opacity-50" />
+                    <Film className="w-8 h-8 opacity-50 absolute mt-4 ml-4" />
+                    <p className="text-sm font-medium">Click to upload, or drag & drop</p>
+                    <p className="text-xs">JPG, PNG, WEBP, MP4, WebM</p>
+                  </div>
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
