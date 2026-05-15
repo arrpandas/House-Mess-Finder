@@ -1,8 +1,7 @@
 import { useLocation } from "wouter";
 import { useCompare } from "@/lib/compare-context";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, X, Home, Bath, Users, Ruler, MapPin, Phone, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, X, Home, Bath, Users, Ruler, MapPin, Phone, CheckCircle, XCircle, Layers, Clock, Sofa } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
   let sum = 0;
@@ -22,11 +21,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 interface RowProps {
   label: string;
   values: (string | number | boolean | null | undefined)[];
+  highlight?: boolean;
 }
 
-function Row({ label, values }: RowProps) {
+function Row({ label, values, highlight = false }: RowProps) {
   return (
-    <tr className="border-b last:border-0">
+    <tr className={`border-b last:border-0 ${highlight ? "bg-primary/5" : ""}`}>
       <td className="py-3 px-4 text-sm font-medium text-muted-foreground bg-muted/30 w-36 min-w-[9rem]">
         {label}
       </td>
@@ -38,7 +38,7 @@ function Row({ label, values }: RowProps) {
             val ? (
               <CheckCircle className="w-4 h-4 text-green-500 mx-auto" />
             ) : (
-              <XCircle className="w-4 h-4 text-muted-foreground mx-auto" />
+              <XCircle className="w-4 h-4 text-muted-foreground mx-auto opacity-40" />
             )
           ) : (
             String(val)
@@ -92,7 +92,6 @@ export default function Compare() {
               {selectedListings.map((listing) => (
                 <th key={listing.id} className="py-3 px-4 text-center min-w-[180px]">
                   <div className="flex flex-col items-center gap-2">
-                    {/* Image */}
                     <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted mx-auto">
                       {listing.images?.[0] ? (
                         <img
@@ -129,8 +128,10 @@ export default function Compare() {
             </tr>
           </thead>
           <tbody>
+            {/* Cost */}
             <Row
               label="Rent"
+              highlight
               values={selectedListings.map((l) => `৳${Number(l.rent).toLocaleString()}/mo${l.isNegotiable ? " (Neg.)" : ""}`)}
             />
             <Row
@@ -143,15 +144,30 @@ export default function Compare() {
             />
             <Row
               label="Total Cost"
+              highlight
               values={selectedListings.map((l) => {
                 const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
                 const t = totalBills(bills);
                 return `৳${(Number(l.rent) + t).toLocaleString()}`;
               })}
             />
+
+            {/* Property */}
             <Row label="Bathroom" values={selectedListings.map((l) => l.bathroom)} />
+            <Row label="Floor" values={selectedListings.map((l) => l.floor != null ? `Floor ${l.floor}` : null)} />
+            <Row label="Furnished" values={selectedListings.map((l) => l.furnished ?? null)} />
             <Row label="Roommates" values={selectedListings.map((l) => l.roommates != null ? `${l.roommates}` : null)} />
             <Row label="Distance" values={selectedListings.map((l) => l.distance)} />
+            <Row label="Time Limit" values={selectedListings.map((l) => l.timeLimit ?? null)} />
+
+            {/* Features */}
+            <Row label="Lift" values={selectedListings.map((l) => l.hasLift)} />
+            <Row label="Balcony" values={selectedListings.map((l) => l.hasBalcony)} />
+            <Row label="Chad Access" values={selectedListings.map((l) => l.hasChadAccess)} />
+            <Row label="Guest Access" values={selectedListings.map((l) => l.hasGuestAccess)} />
+            <Row label="Negotiable" values={selectedListings.map((l) => l.isNegotiable)} />
+
+            {/* Bills breakdown */}
             <Row
               label="Electricity"
               values={selectedListings.map((l) => {
@@ -164,6 +180,20 @@ export default function Compare() {
               values={selectedListings.map((l) => {
                 const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
                 return bills.wifi != null ? `৳${bills.wifi}` : null;
+              })}
+            />
+            <Row
+              label="Gas"
+              values={selectedListings.map((l) => {
+                const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
+                return bills.gas != null ? `৳${bills.gas}` : null;
+              })}
+            />
+            <Row
+              label="Water"
+              values={selectedListings.map((l) => {
+                const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
+                return bills.water != null ? `৳${bills.water}` : null;
               })}
             />
             <Row
@@ -180,7 +210,8 @@ export default function Compare() {
                 return bills.waste != null ? `৳${bills.waste}` : null;
               })}
             />
-            <Row label="Negotiable" values={selectedListings.map((l) => l.isNegotiable)} />
+
+            {/* Notes */}
             <Row
               label="Pros"
               values={selectedListings.map((l) =>

@@ -46,10 +46,19 @@ const formSchema = z.object({
   bathroom: z.enum(["Attached", "Common"]),
   roommates: z.coerce.number().int().optional().or(z.literal("")),
   distance: z.string().optional(),
+  floor: z.coerce.number().int().optional().or(z.literal("")),
+  hasLift: z.boolean().default(false),
+  hasBalcony: z.boolean().default(false),
+  hasChadAccess: z.boolean().default(false),
+  hasGuestAccess: z.boolean().default(false),
+  timeLimit: z.string().optional(),
+  furnished: z.enum(["Unfurnished", "Semi-furnished", "Fully furnished"]).optional(),
   billsElectricity: z.coerce.number().optional().or(z.literal("")),
   billsWifi: z.coerce.number().optional().or(z.literal("")),
   billsMaid: z.coerce.number().optional().or(z.literal("")),
   billsWaste: z.coerce.number().optional().or(z.literal("")),
+  billsGas: z.coerce.number().optional().or(z.literal("")),
+  billsWater: z.coerce.number().optional().or(z.literal("")),
   contactName: z.string().min(1, "Contact name is required"),
   contactMobile: z.string().min(1, "Contact mobile is required"),
   googleMapUrl: z.string().optional(),
@@ -80,10 +89,19 @@ export default function NewListing() {
       bathroom: "Attached",
       roommates: "",
       distance: "",
+      floor: "",
+      hasLift: false,
+      hasBalcony: false,
+      hasChadAccess: false,
+      hasGuestAccess: false,
+      timeLimit: "",
+      furnished: undefined,
       billsElectricity: "",
       billsWifi: "",
       billsMaid: "",
       billsWaste: "",
+      billsGas: "",
+      billsWater: "",
       contactName: "",
       contactMobile: "",
       googleMapUrl: "",
@@ -173,6 +191,10 @@ export default function NewListing() {
       bills.maid = Number(values.billsMaid);
     if (values.billsWaste !== "" && values.billsWaste != null)
       bills.waste = Number(values.billsWaste);
+    if (values.billsGas !== "" && values.billsGas != null)
+      bills.gas = Number(values.billsGas);
+    if (values.billsWater !== "" && values.billsWater != null)
+      bills.water = Number(values.billsWater);
 
     createMutation.mutate({
       data: {
@@ -185,6 +207,14 @@ export default function NewListing() {
         roommates: values.roommates !== "" && values.roommates != null
           ? Number(values.roommates) : null,
         distance: values.distance || null,
+        floor: values.floor !== "" && values.floor != null
+          ? Number(values.floor) : null,
+        hasLift: values.hasLift,
+        hasBalcony: values.hasBalcony,
+        hasChadAccess: values.hasChadAccess,
+        hasGuestAccess: values.hasGuestAccess,
+        timeLimit: values.timeLimit || null,
+        furnished: values.furnished ?? null,
         pros,
         cons,
         images: uploadedImages,
@@ -212,6 +242,7 @@ export default function NewListing() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
             {/* Basic Info */}
             <section className="bg-card border rounded-xl p-5 space-y-4">
               <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Basic Info</h2>
@@ -295,6 +326,28 @@ export default function NewListing() {
 
                 <FormField
                   control={form.control}
+                  name="isNegotiable"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col justify-end pb-1">
+                      <FormLabel>&nbsp;</FormLabel>
+                      <div className="flex items-center gap-2 h-9">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="checkbox-negotiable"
+                          />
+                        </FormControl>
+                        <Label className="cursor-pointer font-normal">Rent is negotiable</Label>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="roommates"
                   render={({ field }) => (
                     <FormItem>
@@ -306,9 +359,7 @@ export default function NewListing() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="distance"
@@ -322,7 +373,9 @@ export default function NewListing() {
                     </FormItem>
                   )}
                 />
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="googleMapUrl"
@@ -337,23 +390,121 @@ export default function NewListing() {
                   )}
                 />
               </div>
+            </section>
+
+            {/* Property Details */}
+            <section className="bg-card border rounded-xl p-5 space-y-4">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Property Details</h2>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="floor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Floor / Level (optional)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} placeholder="e.g. 3" data-testid="input-floor" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="furnished"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Furnished Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-furnished">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Unfurnished">Unfurnished</SelectItem>
+                          <SelectItem value="Semi-furnished">Semi-furnished</SelectItem>
+                          <SelectItem value="Fully furnished">Fully furnished</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
-                name="isNegotiable"
+                name="timeLimit"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-2">
+                  <FormItem>
+                    <FormLabel>Time Limit / Curfew (optional)</FormLabel>
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="checkbox-negotiable"
-                      />
+                      <Input placeholder="e.g. 11 PM curfew, No limit" data-testid="input-time-limit" {...field} />
                     </FormControl>
-                    <FormLabel className="!mt-0 cursor-pointer">Rent is negotiable</FormLabel>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+                <FormField
+                  control={form.control}
+                  name="hasLift"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-lift" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Lift / Elevator</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasBalcony"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-balcony" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Balcony</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasChadAccess"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-chad" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Chad (Roof) Access</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasGuestAccess"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-guest" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Guest Access</FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </section>
 
             {/* Bills */}
@@ -371,6 +522,20 @@ export default function NewListing() {
                   <FormItem>
                     <FormLabel>WiFi (৳)</FormLabel>
                     <FormControl><Input type="number" min={0} placeholder="0" data-testid="input-wifi" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="billsGas" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gas (৳)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="0" data-testid="input-gas" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="billsWater" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Water (৳)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="0" data-testid="input-water" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />

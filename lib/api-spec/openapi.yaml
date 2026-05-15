@@ -202,6 +202,10 @@ components:
           type: ["number", "null"]
         waste:
           type: ["number", "null"]
+        gas:
+          type: ["number", "null"]
+        water:
+          type: ["number", "null"]
 
     ContactInfo:
       type: object
@@ -237,6 +241,21 @@ components:
           type: ["integer", "null"]
         distance:
           type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
         pros:
           type: array
           items:
@@ -263,6 +282,10 @@ components:
         - isNegotiable
         - bills
         - bathroom
+        - hasLift
+        - hasBalcony
+        - hasChadAccess
+        - hasGuestAccess
         - pros
         - cons
         - images
@@ -290,6 +313,21 @@ components:
           type: ["integer", "null"]
         distance:
           type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
         pros:
           type: array
           items:
@@ -336,6 +374,21 @@ components:
           type: ["integer", "null"]
         distance:
           type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
         pros:
           type: array
           items:

@@ -93,6 +93,13 @@ router.post("/listings", async (req, res): Promise<void> => {
     bathroom,
     roommates,
     distance,
+    floor,
+    hasLift,
+    hasBalcony,
+    hasChadAccess,
+    hasGuestAccess,
+    timeLimit,
+    furnished,
     pros,
     cons,
     images,
@@ -111,6 +118,13 @@ router.post("/listings", async (req, res): Promise<void> => {
       bathroom,
       roommates: roommates ?? null,
       distance: distance ?? null,
+      floor: floor ?? null,
+      hasLift: hasLift ?? false,
+      hasBalcony: hasBalcony ?? false,
+      hasChadAccess: hasChadAccess ?? false,
+      hasGuestAccess: hasGuestAccess ?? false,
+      timeLimit: timeLimit ?? null,
+      furnished: furnished ?? null,
       pros: pros ?? [],
       cons: cons ?? [],
       images: images ?? [],
@@ -183,6 +197,13 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.bathroom !== undefined) updates.bathroom = d.bathroom;
   if (d.roommates !== undefined) updates.roommates = d.roommates;
   if (d.distance !== undefined) updates.distance = d.distance;
+  if (d.floor !== undefined) updates.floor = d.floor;
+  if (d.hasLift !== undefined) updates.hasLift = d.hasLift;
+  if (d.hasBalcony !== undefined) updates.hasBalcony = d.hasBalcony;
+  if (d.hasChadAccess !== undefined) updates.hasChadAccess = d.hasChadAccess;
+  if (d.hasGuestAccess !== undefined) updates.hasGuestAccess = d.hasGuestAccess;
+  if (d.timeLimit !== undefined) updates.timeLimit = d.timeLimit;
+  if (d.furnished !== undefined) updates.furnished = d.furnished;
   if (d.pros !== undefined) updates.pros = d.pros;
   if (d.cons !== undefined) updates.cons = d.cons;
   if (d.images !== undefined) updates.images = d.images;

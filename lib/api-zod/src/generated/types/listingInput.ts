@@ -9,6 +9,7 @@ import type { Bills } from './bills';
 import type { ContactInfo } from './contactInfo';
 import type { ListingInputBathroom } from './listingInputBathroom';
 import type { ListingInputCategory } from './listingInputCategory';
+import type { ListingInputFurnished } from './listingInputFurnished';
 
 export interface ListingInput {
   location: string;
@@ -21,6 +22,16 @@ export interface ListingInput {
   roommates?: number | null;
   /** @nullable */
   distance?: string | null;
+  /** @nullable */
+  floor?: number | null;
+  hasLift?: boolean;
+  hasBalcony?: boolean;
+  hasChadAccess?: boolean;
+  hasGuestAccess?: boolean;
+  /** @nullable */
+  timeLimit?: string | null;
+  /** @nullable */
+  furnished?: ListingInputFurnished;
   pros?: string[];
   cons?: string[];
   images?: string[];

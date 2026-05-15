@@ -44,6 +44,9 @@ import {
   TrendingDown,
   TrendingUp,
   DollarSign,
+  Layers,
+  Sofa,
+  Clock,
 } from "lucide-react";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -69,6 +72,12 @@ function totalBills(bills: Record<string, number | null | undefined>): number {
   }
   return sum;
 }
+
+const FURNISHED_COLORS: Record<string, string> = {
+  "Unfurnished": "bg-gray-100 text-gray-700",
+  "Semi-furnished": "bg-yellow-100 text-yellow-800",
+  "Fully furnished": "bg-teal-100 text-teal-800",
+};
 
 export default function Dashboard() {
   const [category, setCategory] = useState<string>("All");
@@ -231,7 +240,7 @@ export default function Dashboard() {
                         <Home className="w-12 h-12 opacity-30" />
                       </div>
                     )}
-                    <div className="absolute top-2 left-2">
+                    <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           CATEGORY_COLORS[listing.category] ?? "bg-gray-100 text-gray-800"
@@ -239,6 +248,15 @@ export default function Dashboard() {
                       >
                         {listing.category}
                       </span>
+                      {listing.furnished && (
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            FURNISHED_COLORS[listing.furnished] ?? "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {listing.furnished}
+                        </span>
+                      )}
                     </div>
                     <div
                       className="absolute top-2 right-2"
@@ -303,6 +321,12 @@ export default function Dashboard() {
                         <Bath className="w-3.5 h-3.5" />
                         {listing.bathroom}
                       </span>
+                      {listing.floor != null && (
+                        <span className="flex items-center gap-1">
+                          <Layers className="w-3.5 h-3.5" />
+                          Floor {listing.floor}
+                        </span>
+                      )}
                       {listing.roommates != null && (
                         <span className="flex items-center gap-1">
                           <Users className="w-3.5 h-3.5" />
@@ -314,6 +338,28 @@ export default function Dashboard() {
                           <Ruler className="w-3.5 h-3.5" />
                           {listing.distance}
                         </span>
+                      )}
+                      {listing.timeLimit && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {listing.timeLimit}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Feature pills */}
+                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                      {listing.hasLift && (
+                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">Lift</span>
+                      )}
+                      {listing.hasBalcony && (
+                        <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Balcony</span>
+                      )}
+                      {listing.hasChadAccess && (
+                        <span className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">Chad Access</span>
+                      )}
+                      {listing.hasGuestAccess && (
+                        <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">Guest Access</span>
                       )}
                     </div>
                   </div>

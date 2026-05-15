@@ -18,6 +18,10 @@ export interface Bills {
   maid?: number | null;
   /** @nullable */
   waste?: number | null;
+  /** @nullable */
+  gas?: number | null;
+  /** @nullable */
+  water?: number | null;
 }
 
 export interface ContactInfo {
@@ -43,6 +47,18 @@ export const ListingBathroom = {
   Common: 'Common',
 } as const;
 
+/**
+ * @nullable
+ */
+export type ListingFurnished = typeof ListingFurnished[keyof typeof ListingFurnished] | null;
+
+
+export const ListingFurnished = {
+  Unfurnished: 'Unfurnished',
+  'Semi-furnished': 'Semi-furnished',
+  Fully_furnished: 'Fully furnished',
+} as const;
+
 export interface Listing {
   id: string;
   location: string;
@@ -55,6 +71,16 @@ export interface Listing {
   roommates?: number | null;
   /** @nullable */
   distance?: string | null;
+  /** @nullable */
+  floor?: number | null;
+  hasLift: boolean;
+  hasBalcony: boolean;
+  hasChadAccess: boolean;
+  hasGuestAccess: boolean;
+  /** @nullable */
+  timeLimit?: string | null;
+  /** @nullable */
+  furnished?: ListingFurnished;
   pros: string[];
   cons: string[];
   images: string[];
@@ -82,6 +108,18 @@ export const ListingInputBathroom = {
   Common: 'Common',
 } as const;
 
+/**
+ * @nullable
+ */
+export type ListingInputFurnished = typeof ListingInputFurnished[keyof typeof ListingInputFurnished] | null;
+
+
+export const ListingInputFurnished = {
+  Unfurnished: 'Unfurnished',
+  'Semi-furnished': 'Semi-furnished',
+  Fully_furnished: 'Fully furnished',
+} as const;
+
 export interface ListingInput {
   location: string;
   category: ListingInputCategory;
@@ -93,6 +131,16 @@ export interface ListingInput {
   roommates?: number | null;
   /** @nullable */
   distance?: string | null;
+  /** @nullable */
+  floor?: number | null;
+  hasLift?: boolean;
+  hasBalcony?: boolean;
+  hasChadAccess?: boolean;
+  hasGuestAccess?: boolean;
+  /** @nullable */
+  timeLimit?: string | null;
+  /** @nullable */
+  furnished?: ListingInputFurnished;
   pros?: string[];
   cons?: string[];
   images?: string[];
@@ -119,6 +167,18 @@ export const ListingUpdateBathroom = {
   Common: 'Common',
 } as const;
 
+/**
+ * @nullable
+ */
+export type ListingUpdateFurnished = typeof ListingUpdateFurnished[keyof typeof ListingUpdateFurnished] | null;
+
+
+export const ListingUpdateFurnished = {
+  Unfurnished: 'Unfurnished',
+  'Semi-furnished': 'Semi-furnished',
+  Fully_furnished: 'Fully furnished',
+} as const;
+
 export interface ListingUpdate {
   location?: string;
   category?: ListingUpdateCategory;
@@ -130,6 +190,16 @@ export interface ListingUpdate {
   roommates?: number | null;
   /** @nullable */
   distance?: string | null;
+  /** @nullable */
+  floor?: number | null;
+  hasLift?: boolean;
+  hasBalcony?: boolean;
+  hasChadAccess?: boolean;
+  hasGuestAccess?: boolean;
+  /** @nullable */
+  timeLimit?: string | null;
+  /** @nullable */
+  furnished?: ListingUpdateFurnished;
   pros?: string[];
   cons?: string[];
   images?: string[];

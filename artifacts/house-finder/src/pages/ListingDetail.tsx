@@ -42,6 +42,13 @@ import {
   Wifi,
   Wind,
   Leaf,
+  Layers,
+  ArrowUpDown,
+  Sofa,
+  Clock,
+  UserCheck,
+  Droplets,
+  Flame,
 } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
@@ -57,6 +64,12 @@ const CATEGORY_COLORS: Record<string, string> = {
   Mess: "bg-purple-100 text-purple-800",
   Flat: "bg-green-100 text-green-800",
   Seat: "bg-orange-100 text-orange-800",
+};
+
+const FURNISHED_COLORS: Record<string, string> = {
+  "Unfurnished": "bg-gray-100 text-gray-700",
+  "Semi-furnished": "bg-yellow-100 text-yellow-800",
+  "Fully furnished": "bg-teal-100 text-teal-800",
 };
 
 export default function ListingDetail() {
@@ -93,6 +106,13 @@ export default function ListingDetail() {
       billsTotal > 0 ? `Bills: ৳${billsTotal.toLocaleString()}/mo` : null,
       `Total: ৳${(Number(listing.rent) + billsTotal).toLocaleString()}/mo`,
       `Bathroom: ${listing.bathroom}`,
+      listing.floor != null ? `Floor: ${listing.floor}` : null,
+      listing.furnished ? `Furnished: ${listing.furnished}` : null,
+      listing.hasLift ? "Lift: Yes" : null,
+      listing.hasBalcony ? "Balcony: Yes" : null,
+      listing.hasChadAccess ? "Chad Access: Yes" : null,
+      listing.hasGuestAccess ? "Guest Access: Yes" : null,
+      listing.timeLimit ? `Time Limit: ${listing.timeLimit}` : null,
       listing.roommates != null ? `Roommates: ${listing.roommates}` : null,
       listing.distance ? `Distance: ${listing.distance}` : null,
       listing.pros?.length ? `Pros: ${listing.pros.join(", ")}` : null,
@@ -137,6 +157,13 @@ export default function ListingDetail() {
   const bills = (listing.bills ?? {}) as Record<string, number | null | undefined>;
   const billsTotal = totalBills(bills);
   const images = listing.images ?? [];
+
+  const featureItems = [
+    { active: listing.hasLift, label: "Lift / Elevator" },
+    { active: listing.hasBalcony, label: "Balcony" },
+    { active: listing.hasChadAccess, label: "Chad (Roof) Access" },
+    { active: listing.hasGuestAccess, label: "Guest Access" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -230,7 +257,7 @@ export default function ListingDetail() {
         <div className="bg-card border rounded-xl p-5 mb-4">
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span
                   className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                     CATEGORY_COLORS[listing.category] ?? "bg-gray-100 text-gray-800"
@@ -238,6 +265,15 @@ export default function ListingDetail() {
                 >
                   {listing.category}
                 </span>
+                {listing.furnished && (
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      FURNISHED_COLORS[listing.furnished] ?? "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {listing.furnished}
+                  </span>
+                )}
                 {listing.isNegotiable && (
                   <Badge variant="secondary" className="text-xs">Negotiable</Badge>
                 )}
@@ -262,11 +298,17 @@ export default function ListingDetail() {
             <span className="text-sm font-medium" data-testid="text-location">{listing.location}</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Bath className="w-4 h-4 text-primary" />
               <span>{listing.bathroom} Bathroom</span>
             </div>
+            {listing.floor != null && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Layers className="w-4 h-4 text-primary" />
+                <span>Floor {listing.floor}</span>
+              </div>
+            )}
             {listing.roommates != null && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="w-4 h-4 text-primary" />
@@ -279,6 +321,29 @@ export default function ListingDetail() {
                 <span>{listing.distance}</span>
               </div>
             )}
+            {listing.timeLimit && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4 text-primary" />
+                <span>{listing.timeLimit}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Feature badges */}
+          <div className="flex flex-wrap gap-2">
+            {featureItems.map(({ active, label }) => (
+              <span
+                key={label}
+                className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium ${
+                  active
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground line-through opacity-60"
+                }`}
+              >
+                {active ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                {label}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -298,6 +363,18 @@ export default function ListingDetail() {
                   <div className="flex justify-between text-sm">
                     <span className="flex items-center gap-1.5 text-muted-foreground"><Wifi className="w-3.5 h-3.5" />WiFi</span>
                     <span className="font-medium text-foreground">৳{bills.wifi}</span>
+                  </div>
+                )}
+                {bills.gas != null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="flex items-center gap-1.5 text-muted-foreground"><Flame className="w-3.5 h-3.5" />Gas</span>
+                    <span className="font-medium text-foreground">৳{bills.gas}</span>
+                  </div>
+                )}
+                {bills.water != null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="flex items-center gap-1.5 text-muted-foreground"><Droplets className="w-3.5 h-3.5" />Water</span>
+                    <span className="font-medium text-foreground">৳{bills.water}</span>
                   </div>
                 )}
                 {bills.maid != null && (

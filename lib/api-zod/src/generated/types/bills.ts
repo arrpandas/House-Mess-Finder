@@ -15,4 +15,8 @@ export interface Bills {
   maid?: number | null;
   /** @nullable */
   waste?: number | null;
+  /** @nullable */
+  gas?: number | null;
+  /** @nullable */
+  water?: number | null;
 }
