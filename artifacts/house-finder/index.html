@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      (function () {
+        var proto = window.MediaQueryList && window.MediaQueryList.prototype;
+        if (proto && !proto.addListener) {
+          proto.addListener = function (cb) {
+            if (cb) this.addEventListener("change", cb);
+          };
+          proto.removeListener = function (cb) {
+            if (cb) this.removeEventListener("change", cb);
+          };
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>House Finder</title>

@@ -31,7 +31,21 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    runtimeErrorOverlay(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (runtimeErrorOverlay as any)({
+      filter(error: Error) {
+        if (!error?.stack) return true;
+        const atLines = error.stack
+          .split("\n")
+          .filter((l) => /^\s+at\s/.test(l));
+        // Suppress errors where every frame is a blob: URL —
+        // those come from Vite/Replit plugin infrastructure, not app code.
+        if (atLines.length > 0 && atLines.every((l) => l.includes("blob:"))) {
+          return false;
+        }
+        return true;
+      },
+    }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
