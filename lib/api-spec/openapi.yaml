@@ -1,0 +1,462 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: House/Mess Finder & Comparison Tracker API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: listings
+    description: Housing listing operations
+  - name: storage
+    description: Object storage operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /listings:
+    get:
+      operationId: listListings
+      tags: [listings]
+      summary: List all listings
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [rent_asc, rent_desc, distance, newest]
+        - name: maxRent
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Listing"
+    post:
+      operationId: createListing
+      tags: [listings]
+      summary: Create a new listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingInput"
+      responses:
+        "201":
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+
+  /listings/summary:
+    get:
+      operationId: getListingsSummary
+      tags: [listings]
+      summary: Get summary stats for all listings
+      responses:
+        "200":
+          description: Summary statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingsSummary"
+
+  /listings/{id}:
+    get:
+      operationId: getListing
+      tags: [listings]
+      summary: Get a listing by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateListing
+      tags: [listings]
+      summary: Update a listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingUpdate"
+      responses:
+        "200":
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteListing
+      tags: [listings]
+      summary: Delete a listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+
+  /storage/objects/{objectPath}:
+    get:
+      operationId: getStorageObject
+      tags: [storage]
+      summary: Serve a stored object
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Object file
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Bills:
+      type: object
+      properties:
+        electricity:
+          type: ["number", "null"]
+        wifi:
+          type: ["number", "null"]
+        maid:
+          type: ["number", "null"]
+        waste:
+          type: ["number", "null"]
+        gas:
+          type: ["number", "null"]
+        water:
+          type: ["number", "null"]
+
+    ContactInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+      required:
+        - name
+        - mobile
+
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+        location:
+          type: string
+        category:
+          type: string
+          enum: [Sublet, Mess, Flat, Seat]
+        rent:
+          type: number
+        isNegotiable:
+          type: boolean
+        bills:
+          $ref: "#/components/schemas/Bills"
+        bathroom:
+          type: string
+          enum: [Attached, Common]
+        roommates:
+          type: ["integer", "null"]
+        distance:
+          type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
+        pros:
+          type: array
+          items:
+            type: string
+        cons:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+        contactInfo:
+          $ref: "#/components/schemas/ContactInfo"
+        googleMapUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - location
+        - category
+        - rent
+        - isNegotiable
+        - bills
+        - bathroom
+        - hasLift
+        - hasBalcony
+        - hasChadAccess
+        - hasGuestAccess
+        - pros
+        - cons
+        - images
+        - contactInfo
+        - createdAt
+
+    ListingInput:
+      type: object
+      properties:
+        location:
+          type: string
+        category:
+          type: string
+          enum: [Sublet, Mess, Flat, Seat]
+        rent:
+          type: number
+        isNegotiable:
+          type: boolean
+        bills:
+          $ref: "#/components/schemas/Bills"
+        bathroom:
+          type: string
+          enum: [Attached, Common]
+        roommates:
+          type: ["integer", "null"]
+        distance:
+          type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
+        pros:
+          type: array
+          items:
+            type: string
+        cons:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+        contactInfo:
+          $ref: "#/components/schemas/ContactInfo"
+        googleMapUrl:
+          type: ["string", "null"]
+      required:
+        - location
+        - category
+        - rent
+        - isNegotiable
+        - bills
+        - bathroom
+        - contactInfo
+
+    ListingUpdate:
+      type: object
+      properties:
+        location:
+          type: string
+        category:
+          type: string
+          enum: [Sublet, Mess, Flat, Seat]
+        rent:
+          type: number
+        isNegotiable:
+          type: boolean
+        bills:
+          $ref: "#/components/schemas/Bills"
+        bathroom:
+          type: string
+          enum: [Attached, Common]
+        roommates:
+          type: ["integer", "null"]
+        distance:
+          type: ["string", "null"]
+        floor:
+          type: ["integer", "null"]
+        hasLift:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasChadAccess:
+          type: boolean
+        hasGuestAccess:
+          type: boolean
+        timeLimit:
+          type: ["string", "null"]
+        furnished:
+          type: ["string", "null"]
+          enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
+        pros:
+          type: array
+          items:
+            type: string
+        cons:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+        contactInfo:
+          $ref: "#/components/schemas/ContactInfo"
+        googleMapUrl:
+          type: ["string", "null"]
+
+    ListingsSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        avgRent:
+          type: ["number", "null"]
+        minRent:
+          type: ["number", "null"]
+        maxRent:
+          type: ["number", "null"]
+        byCategory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+      required:
+        - total
+        - byCategory
+
+    CategoryCount:
+      type: object
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+      required:
+        - category
+        - count
+
+    UploadUrlRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+        contentType:
+          type: string
+      required:
+        - name
+        - size
+        - contentType
+
+    UploadUrlResponse:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+      required:
+        - uploadURL
+        - objectPath
