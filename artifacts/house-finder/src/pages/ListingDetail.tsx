@@ -49,6 +49,8 @@ import {
   UserCheck,
   Droplets,
   Flame,
+  Edit,
+  MessageCircle,
 } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
@@ -100,24 +102,35 @@ export default function ListingDetail() {
     if (!listing) return;
     const bills = (listing.bills ?? {}) as Record<string, number | null | undefined>;
     const billsTotal = totalBills(bills);
+    const serviceCharge = Number(listing.serviceCharge ?? 0);
+    const grandTotal = Number(listing.rent) + billsTotal + serviceCharge;
     const text = [
       `Location: ${listing.location} (${listing.category})`,
       `Rent: ৳${Number(listing.rent).toLocaleString()}/mo${listing.isNegotiable ? " (Negotiable)" : ""}`,
+      serviceCharge > 0 ? `Service Charge: ৳${serviceCharge.toLocaleString()}/mo` : null,
       billsTotal > 0 ? `Bills: ৳${billsTotal.toLocaleString()}/mo` : null,
-      `Total: ৳${(Number(listing.rent) + billsTotal).toLocaleString()}/mo`,
+      `Total: ৳${grandTotal.toLocaleString()}/mo`,
       `Bathroom: ${listing.bathroom}`,
       listing.floor != null ? `Floor: ${listing.floor}` : null,
       listing.furnished ? `Furnished: ${listing.furnished}` : null,
       listing.hasLift ? "Lift: Yes" : null,
       listing.hasBalcony ? "Balcony: Yes" : null,
-      listing.hasChadAccess ? "Chad Access: Yes" : null,
+      listing.hasChadAccess ? "Roof Access: Yes" : null,
       listing.hasGuestAccess ? "Guest Access: Yes" : null,
+      listing.hasGenerator ? "Generator: Yes" : null,
+      listing.hasParking ? "Parking: Yes" : null,
+      listing.hasSecurity ? "Security: Yes" : null,
+      listing.hasCctv ? "CCTV: Yes" : null,
+      listing.hasFridge ? "Fridge: Yes" : null,
+      listing.hasAc ? "AC: Yes" : null,
+      listing.hasGeyser ? "Geyser: Yes" : null,
+      listing.hasMealSystem ? "Meal System: Yes" : null,
       listing.timeLimit ? `Time Limit: ${listing.timeLimit}` : null,
       listing.roommates != null ? `Roommates: ${listing.roommates}` : null,
       listing.distance ? `Distance: ${listing.distance}` : null,
       listing.pros?.length ? `Pros: ${listing.pros.join(", ")}` : null,
       listing.cons?.length ? `Cons: ${listing.cons.join(", ")}` : null,
-      `Contact: ${listing.contactInfo?.name ?? ""} — ${listing.contactInfo?.mobile ?? ""}`,
+      `Contact: ${listing.contactInfo?.name ? listing.contactInfo.name + " — " : ""}${listing.contactInfo?.mobile ?? ""}`,
       listing.googleMapUrl ? `Map: ${listing.googleMapUrl}` : null,
     ]
       .filter(Boolean)
@@ -156,13 +169,24 @@ export default function ListingDetail() {
 
   const bills = (listing.bills ?? {}) as Record<string, number | null | undefined>;
   const billsTotal = totalBills(bills);
+  const serviceCharge = Number(listing.serviceCharge ?? 0);
+  const grandTotal = Number(listing.rent) + billsTotal + serviceCharge;
   const images = listing.images ?? [];
+  const videos = (listing as any).videos ?? [];
 
   const featureItems = [
-    { active: listing.hasLift, label: "Lift / Elevator" },
+    { active: listing.hasLift, label: "Lift" },
     { active: listing.hasBalcony, label: "Balcony" },
-    { active: listing.hasChadAccess, label: "Chad (Roof) Access" },
+    { active: listing.hasChadAccess, label: "Roof Access" },
     { active: listing.hasGuestAccess, label: "Guest Access" },
+    { active: listing.hasGenerator, label: "Generator" },
+    { active: listing.hasParking, label: "Parking" },
+    { active: listing.hasSecurity, label: "Security" },
+    { active: listing.hasCctv, label: "CCTV" },
+    { active: listing.hasFridge, label: "Fridge" },
+    { active: listing.hasAc, label: "AC" },
+    { active: listing.hasGeyser, label: "Geyser" },
+    { active: listing.hasMealSystem, label: "Meal System" },
   ];
 
   return (
@@ -174,6 +198,10 @@ export default function ListingDetail() {
             Back
           </Button>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setLocation(`/listings/${listing.id}/edit`)} data-testid="button-edit-detail">
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
             <Button variant="outline" size="sm" onClick={handleShare} data-testid="button-share">
               <Share2 className="w-4 h-4 mr-2" />
               Share
@@ -282,11 +310,13 @@ export default function ListingDetail() {
                 ৳{Number(listing.rent).toLocaleString()}
                 <span className="text-base font-normal text-muted-foreground">/mo</span>
               </h2>
-              {billsTotal > 0 && (
+              {(billsTotal > 0 || serviceCharge > 0) && (
                 <p className="text-sm text-muted-foreground">
-                  + ৳{billsTotal.toLocaleString()} bills ={" "}
+                  {serviceCharge > 0 && `+ ৳${serviceCharge.toLocaleString()} service `}
+                  {billsTotal > 0 && `+ ৳${billsTotal.toLocaleString()} bills `}
+                  ={" "}
                   <span className="font-semibold text-foreground">
-                    ৳{(Number(listing.rent) + billsTotal).toLocaleString()} total
+                    ৳{grandTotal.toLocaleString()} total
                   </span>
                 </p>
               )}
@@ -349,10 +379,16 @@ export default function ListingDetail() {
 
         <div className="grid sm:grid-cols-2 gap-4 mb-4">
           {/* Bills */}
-          {Object.values(bills).some((v) => v != null) && (
+          {(Object.values(bills).some((v) => v != null) || serviceCharge > 0) && (
             <div className="bg-card border rounded-xl p-5">
-              <h3 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wide">Bills</h3>
+              <h3 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wide">Bills & Charges</h3>
               <div className="space-y-2">
+                {serviceCharge > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="flex items-center gap-1.5 text-muted-foreground"><Home className="w-3.5 h-3.5" />Service Charge</span>
+                    <span className="font-medium text-foreground">৳{serviceCharge}</span>
+                  </div>
+                )}
                 {bills.electricity != null && (
                   <div className="flex justify-between text-sm">
                     <span className="flex items-center gap-1.5 text-muted-foreground"><Zap className="w-3.5 h-3.5" />Electricity</span>
@@ -389,10 +425,10 @@ export default function ListingDetail() {
                     <span className="font-medium text-foreground">৳{bills.waste}</span>
                   </div>
                 )}
-                {billsTotal > 0 && (
+                {(billsTotal > 0 || serviceCharge > 0) && (
                   <div className="flex justify-between text-sm font-semibold border-t pt-2 mt-2">
-                    <span>Total Bills</span>
-                    <span className="text-primary">৳{billsTotal.toLocaleString()}</span>
+                    <span>Total Extras</span>
+                    <span className="text-primary">৳{(billsTotal + serviceCharge).toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -403,16 +439,47 @@ export default function ListingDetail() {
           <div className="bg-card border rounded-xl p-5">
             <h3 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wide">Contact</h3>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground" data-testid="text-contact-name">
-                {listing.contactInfo?.name}
-              </p>
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Phone className="w-3.5 h-3.5 text-primary" />
-                <span data-testid="text-contact-mobile">{listing.contactInfo?.mobile}</span>
+              {listing.contactInfo?.name && (
+                <p className="text-sm font-medium text-foreground" data-testid="text-contact-name">
+                  {listing.contactInfo?.name}
+                </p>
+              )}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Phone className="w-3.5 h-3.5 text-primary" />
+                  <span data-testid="text-contact-mobile">{listing.contactInfo?.mobile}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2 border-green-200 bg-green-50 hover:bg-green-100 text-green-700 hover:text-green-800"
+                  onClick={() => window.open(`https://wa.me/${listing.contactInfo?.mobile.replace(/[^0-9]/g, "")}`, "_blank")}
+                >
+                  <MessageCircle className="w-3.5 h-3.5 mr-1.5 fill-current" />
+                  WhatsApp
+                </Button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Videos */}
+        {videos.length > 0 && (
+          <div className="mb-6 space-y-3">
+            <h3 className="font-semibold text-foreground text-sm uppercase tracking-wide">Videos</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {videos.map((vid: string, i: number) => (
+                <div key={i} className="aspect-video bg-muted rounded-xl overflow-hidden border">
+                  <video
+                    src={`/api/storage${vid}`}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Pros & Cons */}
         {((listing.pros?.length ?? 0) > 0 || (listing.cons?.length ?? 0) > 0) && (

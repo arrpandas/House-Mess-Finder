@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,6 +51,15 @@ const formSchema = z.object({
   hasBalcony: z.boolean().default(false),
   hasChadAccess: z.boolean().default(false),
   hasGuestAccess: z.boolean().default(false),
+  serviceCharge: z.coerce.number().optional().or(z.literal("")),
+  hasGenerator: z.boolean().default(false),
+  hasParking: z.boolean().default(false),
+  hasSecurity: z.boolean().default(false),
+  hasFridge: z.boolean().default(false),
+  hasAc: z.boolean().default(false),
+  hasGeyser: z.boolean().default(false),
+  hasCctv: z.boolean().default(false),
+  hasMealSystem: z.boolean().default(false),
   timeLimit: z.string().optional(),
   furnished: z.enum(["Unfurnished", "Semi-furnished", "Fully furnished"]).optional(),
   billsElectricity: z.coerce.number().optional().or(z.literal("")),
@@ -59,7 +68,7 @@ const formSchema = z.object({
   billsWaste: z.coerce.number().optional().or(z.literal("")),
   billsGas: z.coerce.number().optional().or(z.literal("")),
   billsWater: z.coerce.number().optional().or(z.literal("")),
-  contactName: z.string().min(1, "Contact name is required"),
+  contactName: z.string().optional().or(z.literal("")),
   contactMobile: z.string().min(1, "Contact mobile is required"),
   googleMapUrl: z.string().optional(),
 });
@@ -76,6 +85,7 @@ export default function NewListing() {
   const [newPro, setNewPro] = useState("");
   const [newCon, setNewCon] = useState("");
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -94,6 +104,15 @@ export default function NewListing() {
       hasBalcony: false,
       hasChadAccess: false,
       hasGuestAccess: false,
+      serviceCharge: "",
+      hasGenerator: false,
+      hasParking: false,
+      hasSecurity: false,
+      hasFridge: false,
+      hasAc: false,
+      hasGeyser: false,
+      hasCctv: false,
+      hasMealSystem: false,
       timeLimit: "",
       furnished: undefined,
       billsElectricity: "",
@@ -123,13 +142,23 @@ export default function NewListing() {
 
   const requestUploadUrlMutation = useRequestUploadUrl();
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+  const uploadFiles = async (files: File[]) => {
     if (files.length === 0) return;
     setUploadingCount((c) => c + files.length);
 
-    const paths: string[] = [];
+    const imagePaths: string[] = [];
+    const videoPaths: string[] = [];
+
     for (const file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+
+      if (!isImage && !isVideo) {
+        toast({ title: `Skipping ${file.name}: Not an image or video`, variant: "destructive" });
+        setUploadingCount((c) => c - 1);
+        continue;
+      }
+
       try {
         const result = await new Promise<{ uploadURL: string; objectPath: string }>(
           (resolve, reject) => {
@@ -155,7 +184,8 @@ export default function NewListing() {
           body: file,
         });
 
-        paths.push(result.objectPath);
+        if (isImage) imagePaths.push(result.objectPath);
+        else videoPaths.push(result.objectPath);
       } catch {
         toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
       } finally {
@@ -163,9 +193,53 @@ export default function NewListing() {
       }
     }
 
-    setUploadedImages((prev) => [...prev, ...paths]);
+    setUploadedImages((prev) => [...prev, ...imagePaths]);
+    setUploadedVideos((prev) => [...prev, ...videoPaths]);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    uploadFiles(files);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    uploadFiles(files);
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const files: File[] = [];
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) files.push(file);
+        }
+      }
+      if (files.length > 0) {
+        uploadFiles(files);
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [requestUploadUrlMutation, uploadedImages]); // Re-bind if mutations or state change (though uploadFiles uses setters)
 
   const removeImage = (index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
@@ -213,6 +287,16 @@ export default function NewListing() {
         hasBalcony: values.hasBalcony,
         hasChadAccess: values.hasChadAccess,
         hasGuestAccess: values.hasGuestAccess,
+        serviceCharge: values.serviceCharge !== "" && values.serviceCharge != null
+          ? Number(values.serviceCharge) : null,
+        hasGenerator: values.hasGenerator,
+        hasParking: values.hasParking,
+        hasSecurity: values.hasSecurity,
+        hasFridge: values.hasFridge,
+        hasAc: values.hasAc,
+        hasGeyser: values.hasGeyser,
+        hasCctv: values.hasCctv,
+        hasMealSystem: values.hasMealSystem,
         timeLimit: values.timeLimit || null,
         furnished: values.furnished ?? null,
         pros,
@@ -413,6 +497,22 @@ export default function NewListing() {
 
                 <FormField
                   control={form.control}
+                  name="serviceCharge"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Service Charge (optional)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} placeholder="e.g. 2000" data-testid="input-service-charge" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="furnished"
                   render={({ field }) => (
                     <FormItem>
@@ -436,23 +536,23 @@ export default function NewListing() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="timeLimit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Time Limit (optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 11 PM" data-testid="input-time-limit" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
-              <FormField
-                control={form.control}
-                name="timeLimit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Time Limit / Curfew (optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. 11 PM curfew, No limit" data-testid="input-time-limit" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6">
                 <FormField
                   control={form.control}
                   name="hasLift"
@@ -461,7 +561,7 @@ export default function NewListing() {
                       <FormControl>
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-lift" />
                       </FormControl>
-                      <FormLabel className="!mt-0 cursor-pointer font-normal">Lift / Elevator</FormLabel>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Lift</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -487,7 +587,7 @@ export default function NewListing() {
                       <FormControl>
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-chad" />
                       </FormControl>
-                      <FormLabel className="!mt-0 cursor-pointer font-normal">Chad (Roof) Access</FormLabel>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Roof Access</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -501,6 +601,110 @@ export default function NewListing() {
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-guest" />
                       </FormControl>
                       <FormLabel className="!mt-0 cursor-pointer font-normal">Guest Access</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasGenerator"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-generator" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Generator</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasParking"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-parking" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Parking</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasSecurity"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-security" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Security</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasCctv"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-cctv" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">CCTV</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasFridge"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-fridge" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Fridge</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasAc"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-ac" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">AC</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasGeyser"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-geyser" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Geyser</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hasMealSystem"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="checkbox-meal" />
+                      </FormControl>
+                      <FormLabel className="!mt-0 cursor-pointer font-normal">Meal System</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -638,9 +842,15 @@ export default function NewListing() {
             {/* Images */}
             <section className="bg-card border rounded-xl p-5 space-y-4">
               <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Photos (optional)</h2>
+              <p className="text-xs text-muted-foreground mt-[-10px]">Tip: You can also drag & drop or paste images anywhere!</p>
               <div
-                className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                  isDragging ? "border-primary bg-primary/5" : "hover:border-primary"
+                }`}
                 onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
                 data-testid="dropzone-images"
               >
                 {uploadingCount > 0 ? (
@@ -648,10 +858,15 @@ export default function NewListing() {
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     <p className="text-sm">Uploading {uploadingCount} file{uploadingCount > 1 ? "s" : ""}...</p>
                   </div>
+                ) : isDragging ? (
+                  <div className="flex flex-col items-center gap-2 text-primary">
+                    <Upload className="w-8 h-8 animate-bounce" />
+                    <p className="text-sm font-bold">Drop images here</p>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <ImagePlus className="w-8 h-8 opacity-50" />
-                    <p className="text-sm font-medium">Click to upload photos</p>
+                    <p className="text-sm font-medium">Click to upload, or drag & drop</p>
                     <p className="text-xs">JPG, PNG, WEBP</p>
                   </div>
                 )}

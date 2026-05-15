@@ -300,11 +300,11 @@ export default function Dashboard() {
                             </Badge>
                           )}
                         </div>
-                        {billsTotal > 0 && (
+                        {(billsTotal > 0 || Number(listing.serviceCharge ?? 0) > 0) && (
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            + ৳{billsTotal.toLocaleString()} bills ={" "}
+                            + ৳{(billsTotal + Number(listing.serviceCharge ?? 0)).toLocaleString()} extras ={" "}
                             <span className="font-medium text-foreground">
-                              ৳{(Number(listing.rent) + billsTotal).toLocaleString()} total
+                              ৳{(Number(listing.rent) + billsTotal + Number(listing.serviceCharge ?? 0)).toLocaleString()} total
                             </span>
                           </p>
                         )}
@@ -355,11 +355,20 @@ export default function Dashboard() {
                       {listing.hasBalcony && (
                         <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Balcony</span>
                       )}
-                      {listing.hasChadAccess && (
-                        <span className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">Chad Access</span>
+                      {listing.hasParking && (
+                        <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">Parking</span>
                       )}
-                      {listing.hasGuestAccess && (
-                        <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">Guest Access</span>
+                      {listing.hasSecurity && (
+                        <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">Security</span>
+                      )}
+                      {listing.hasGenerator && (
+                        <span className="text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">Generator</span>
+                      )}
+                      {listing.hasCctv && (
+                        <span className="text-xs bg-slate-50 text-slate-700 px-2 py-0.5 rounded-full">CCTV</span>
+                      )}
+                      {listing.hasMealSystem && (
+                        <span className="text-xs bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full">Meals</span>
                       )}
                     </div>
                   </div>

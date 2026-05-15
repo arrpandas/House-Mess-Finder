@@ -143,12 +143,17 @@ export default function Compare() {
               })}
             />
             <Row
+              label="Service Charge"
+              values={selectedListings.map((l) => l.serviceCharge != null ? `৳${Number(l.serviceCharge).toLocaleString()}` : null)}
+            />
+            <Row
               label="Total Cost"
               highlight
               values={selectedListings.map((l) => {
                 const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
                 const t = totalBills(bills);
-                return `৳${(Number(l.rent) + t).toLocaleString()}`;
+                const s = Number(l.serviceCharge ?? 0);
+                return `৳${(Number(l.rent) + t + s).toLocaleString()}`;
               })}
             />
 
@@ -163,8 +168,16 @@ export default function Compare() {
             {/* Features */}
             <Row label="Lift" values={selectedListings.map((l) => l.hasLift)} />
             <Row label="Balcony" values={selectedListings.map((l) => l.hasBalcony)} />
-            <Row label="Chad Access" values={selectedListings.map((l) => l.hasChadAccess)} />
+            <Row label="Roof Access" values={selectedListings.map((l) => l.hasChadAccess)} />
             <Row label="Guest Access" values={selectedListings.map((l) => l.hasGuestAccess)} />
+            <Row label="Generator" values={selectedListings.map((l) => l.hasGenerator)} />
+            <Row label="Parking" values={selectedListings.map((l) => l.hasParking)} />
+            <Row label="Security" values={selectedListings.map((l) => l.hasSecurity)} />
+            <Row label="CCTV" values={selectedListings.map((l) => l.hasCctv)} />
+            <Row label="Fridge" values={selectedListings.map((l) => l.hasFridge)} />
+            <Row label="AC" values={selectedListings.map((l) => l.hasAc)} />
+            <Row label="Geyser" values={selectedListings.map((l) => l.hasGeyser)} />
+            <Row label="Meal System" values={selectedListings.map((l) => l.hasMealSystem)} />
             <Row label="Negotiable" values={selectedListings.map((l) => l.isNegotiable)} />
 
             {/* Bills breakdown */}

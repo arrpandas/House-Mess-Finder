@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CompareProvider } from "@/lib/compare-context";
 
 import Dashboard from "@/pages/Dashboard";
-import NewListing from "@/pages/NewListing";
+import ListingForm from "@/pages/ListingForm";
 import ListingDetail from "@/pages/ListingDetail";
 import Compare from "@/pages/Compare";
 import NotFound from "@/pages/not-found";
@@ -24,8 +24,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/listings/new" component={NewListing} />
+      <Route path="/listings/new" component={ListingForm} />
       <Route path="/listings/:id" component={ListingDetail} />
+      <Route path="/listings/:id/edit" component={ListingForm} />
       <Route path="/compare" component={Compare} />
       <Route component={NotFound} />
     </Switch>

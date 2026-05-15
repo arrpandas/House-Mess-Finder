@@ -211,11 +211,10 @@ components:
       type: object
       properties:
         name:
-          type: string
+          type: ["string", "null"]
         mobile:
           type: string
       required:
-        - name
         - mobile
 
     Listing:
@@ -251,6 +250,24 @@ components:
           type: boolean
         hasGuestAccess:
           type: boolean
+        serviceCharge:
+          type: ["number", "null"]
+        hasGenerator:
+          type: boolean
+        hasParking:
+          type: boolean
+        hasSecurity:
+          type: boolean
+        hasFridge:
+          type: boolean
+        hasAc:
+          type: boolean
+        hasGeyser:
+          type: boolean
+        hasCctv:
+          type: boolean
+        hasMealSystem:
+          type: boolean
         timeLimit:
           type: ["string", "null"]
         furnished:
@@ -265,6 +282,10 @@ components:
           items:
             type: string
         images:
+          type: array
+          items:
+            type: string
+        videos:
           type: array
           items:
             type: string
@@ -323,6 +344,24 @@ components:
           type: boolean
         hasGuestAccess:
           type: boolean
+        serviceCharge:
+          type: ["number", "null"]
+        hasGenerator:
+          type: boolean
+        hasParking:
+          type: boolean
+        hasSecurity:
+          type: boolean
+        hasFridge:
+          type: boolean
+        hasAc:
+          type: boolean
+        hasGeyser:
+          type: boolean
+        hasCctv:
+          type: boolean
+        hasMealSystem:
+          type: boolean
         timeLimit:
           type: ["string", "null"]
         furnished:
@@ -337,6 +376,10 @@ components:
           items:
             type: string
         images:
+          type: array
+          items:
+            type: string
+        videos:
           type: array
           items:
             type: string
@@ -384,6 +427,24 @@ components:
           type: boolean
         hasGuestAccess:
           type: boolean
+        serviceCharge:
+          type: ["number", "null"]
+        hasGenerator:
+          type: boolean
+        hasParking:
+          type: boolean
+        hasSecurity:
+          type: boolean
+        hasFridge:
+          type: boolean
+        hasAc:
+          type: boolean
+        hasGeyser:
+          type: boolean
+        hasCctv:
+          type: boolean
+        hasMealSystem:
+          type: boolean
         timeLimit:
           type: ["string", "null"]
         furnished:
@@ -398,6 +459,10 @@ components:
           items:
             type: string
         images:
+          type: array
+          items:
+            type: string
+        videos:
           type: array
           items:
             type: string

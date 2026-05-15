@@ -25,7 +25,8 @@ export interface Bills {
 }
 
 export interface ContactInfo {
-  name: string;
+  /** @nullable */
+  name?: string | null;
   mobile: string;
 }
 
@@ -78,12 +79,23 @@ export interface Listing {
   hasChadAccess: boolean;
   hasGuestAccess: boolean;
   /** @nullable */
+  serviceCharge?: number | null;
+  hasGenerator: boolean;
+  hasParking: boolean;
+  hasSecurity: boolean;
+  hasFridge: boolean;
+  hasAc: boolean;
+  hasGeyser: boolean;
+  hasCctv: boolean;
+  hasMealSystem: boolean;
+  /** @nullable */
   timeLimit?: string | null;
   /** @nullable */
   furnished?: ListingFurnished;
   pros: string[];
   cons: string[];
   images: string[];
+  videos: string[];
   contactInfo: ContactInfo;
   /** @nullable */
   googleMapUrl?: string | null;
@@ -138,12 +150,23 @@ export interface ListingInput {
   hasChadAccess?: boolean;
   hasGuestAccess?: boolean;
   /** @nullable */
+  serviceCharge?: number | null;
+  hasGenerator?: boolean;
+  hasParking?: boolean;
+  hasSecurity?: boolean;
+  hasFridge?: boolean;
+  hasAc?: boolean;
+  hasGeyser?: boolean;
+  hasCctv?: boolean;
+  hasMealSystem?: boolean;
+  /** @nullable */
   timeLimit?: string | null;
   /** @nullable */
   furnished?: ListingInputFurnished;
   pros?: string[];
   cons?: string[];
   images?: string[];
+  videos?: string[];
   contactInfo: ContactInfo;
   /** @nullable */
   googleMapUrl?: string | null;
@@ -197,12 +220,23 @@ export interface ListingUpdate {
   hasChadAccess?: boolean;
   hasGuestAccess?: boolean;
   /** @nullable */
+  serviceCharge?: number | null;
+  hasGenerator?: boolean;
+  hasParking?: boolean;
+  hasSecurity?: boolean;
+  hasFridge?: boolean;
+  hasAc?: boolean;
+  hasGeyser?: boolean;
+  hasCctv?: boolean;
+  hasMealSystem?: boolean;
+  /** @nullable */
   timeLimit?: string | null;
   /** @nullable */
   furnished?: ListingUpdateFurnished;
   pros?: string[];
   cons?: string[];
   images?: string[];
+  videos?: string[];
   contactInfo?: ContactInfo;
   /** @nullable */
   googleMapUrl?: string | null;
