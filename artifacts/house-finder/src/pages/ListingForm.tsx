@@ -526,12 +526,24 @@ export default function ListingForm() {
                     { name: "hasGeyser", label: "Geyser" },
                     { name: "hasMealSystem", label: "Meal System" },
                   ].map((item) => (
-                    <FormField key={item.name} control={form.control} name={item.name as any} render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                        <FormLabel className="font-normal cursor-pointer">{item.label}</FormLabel>
-                      </FormItem>
-                    ))} />
+                    <FormField
+                      key={item.name}
+                      control={form.control}
+                      name={item.name as any}
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal cursor-pointer">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
                   ))}
                 </div>
               </div>
