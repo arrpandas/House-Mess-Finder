@@ -11,6 +11,11 @@ import ListingDetail from "@/pages/ListingDetail";
 import Compare from "@/pages/Compare";
 import NotFound from "@/pages/not-found";
 
+import TuitionTracker from "@/pages/TuitionTracker";
+import TuitionForm from "@/pages/TuitionForm";
+
+
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -24,6 +29,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/tuition-tracker" component={TuitionTracker} />
       <Route path="/listings/new" component={ListingForm} />
       <Route path="/listings/:id" component={ListingDetail} />
       <Route path="/listings/:id/edit" component={ListingForm} />
@@ -32,6 +38,7 @@ function Router() {
     </Switch>
   );
 }
+
 
 function App() {
   return (
