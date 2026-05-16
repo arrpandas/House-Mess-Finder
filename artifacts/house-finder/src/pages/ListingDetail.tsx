@@ -105,8 +105,12 @@ export default function ListingDetail() {
     const grandTotal = Number(listing.rent) + billsTotal + serviceCharge;
     const text = [
       `Location: ${listing.location} (${listing.category})`,
+      `Negotiation: ${listing.negotiationStatus ?? "Not Started"}${listing.finalNegotiatedRent != null ? ` (Final: ৳${Number(listing.finalNegotiatedRent).toLocaleString()})` : ""}`,
+      `Property: ${listing.propertyAvailabilityStatus ?? "Available"}`,
+      listing.finalNegotiatedRent != null ? `Final Negotiated Rent: ৳${Number(listing.finalNegotiatedRent).toLocaleString()}` : null,
       `Rent: ৳${Number(listing.rent).toLocaleString()}/mo${listing.isNegotiable ? " (Negotiable)" : ""}`,
       listing.advanceDeposit ? `Advance: ${listing.advanceDeposit}` : null,
+
       listing.availableFrom ? `Available From: ${listing.availableFrom}` : null,
       serviceCharge > 0 ? `Service Charge: ৳${serviceCharge.toLocaleString()}/mo` : null,
       billsTotal > 0 ? `Bills: ৳${billsTotal.toLocaleString()}/mo` : null,

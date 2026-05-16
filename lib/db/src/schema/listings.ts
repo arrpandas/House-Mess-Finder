@@ -17,6 +17,11 @@ export const listingsTable = pgTable("listings", {
   category: text("category").notNull(),
   rent: numeric("rent", { precision: 10, scale: 2 }).notNull(),
   isNegotiable: boolean("is_negotiable").notNull().default(false),
+  negotiationStatus: text("negotiation_status").notNull().default("Not Started"),
+  finalNegotiatedRent: numeric("final_negotiated_rent", { precision: 10, scale: 2 }),
+  propertyAvailabilityStatus: text("property_availability_status")
+    .notNull()
+    .default("Available"),
   bills: jsonb("bills").notNull().default({}),
   bathroom: text("bathroom").notNull(),
   roommates: integer("roommates"),

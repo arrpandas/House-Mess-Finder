@@ -250,6 +250,14 @@ components:
           type: number
         isNegotiable:
           type: boolean
+        negotiationStatus:
+          type: string
+          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
+        finalNegotiatedRent:
+          type: ["number", "null"]
+        propertyAvailabilityStatus:
+          type: string
+          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:
@@ -348,6 +356,14 @@ components:
           type: number
         isNegotiable:
           type: boolean
+        negotiationStatus:
+          type: string
+          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
+        finalNegotiatedRent:
+          type: ["number", "null"]
+        propertyAvailabilityStatus:
+          type: string
+          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:
@@ -435,6 +451,14 @@ components:
           type: number
         isNegotiable:
           type: boolean
+        negotiationStatus:
+          type: string
+          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
+        finalNegotiatedRent:
+          type: ["number", "null"]
+        propertyAvailabilityStatus:
+          type: string
+          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:

@@ -40,6 +40,26 @@ export const ListingCategory = {
   Seat: 'Seat',
 } as const;
 
+export type ListingNegotiationStatus = typeof ListingNegotiationStatus[keyof typeof ListingNegotiationStatus];
+
+
+export const ListingNegotiationStatus = {
+  Not_Started: 'Not Started',
+  In_Discussion: 'In Discussion',
+  Offered_Made: 'Offered Made',
+  'Rejected/Declined': 'Rejected/Declined',
+} as const;
+
+export type ListingPropertyAvailabilityStatus = typeof ListingPropertyAvailabilityStatus[keyof typeof ListingPropertyAvailabilityStatus];
+
+
+export const ListingPropertyAvailabilityStatus = {
+  Available: 'Available',
+  'Visited_&_Shortlisted': 'Visited & Shortlisted',
+  'Booked/Rented_Out': 'Booked/Rented Out',
+  My_Final_Choice: 'My Final Choice',
+} as const;
+
 export type ListingBathroom = typeof ListingBathroom[keyof typeof ListingBathroom];
 
 
@@ -66,6 +86,10 @@ export interface Listing {
   category: ListingCategory;
   rent: number;
   isNegotiable: boolean;
+  negotiationStatus?: ListingNegotiationStatus;
+  /** @nullable */
+  finalNegotiatedRent?: number | null;
+  propertyAvailabilityStatus?: ListingPropertyAvailabilityStatus;
   bills: Bills;
   bathroom: ListingBathroom;
   /** @nullable */
@@ -116,6 +140,26 @@ export const ListingInputCategory = {
   Seat: 'Seat',
 } as const;
 
+export type ListingInputNegotiationStatus = typeof ListingInputNegotiationStatus[keyof typeof ListingInputNegotiationStatus];
+
+
+export const ListingInputNegotiationStatus = {
+  Not_Started: 'Not Started',
+  In_Discussion: 'In Discussion',
+  Offered_Made: 'Offered Made',
+  'Rejected/Declined': 'Rejected/Declined',
+} as const;
+
+export type ListingInputPropertyAvailabilityStatus = typeof ListingInputPropertyAvailabilityStatus[keyof typeof ListingInputPropertyAvailabilityStatus];
+
+
+export const ListingInputPropertyAvailabilityStatus = {
+  Available: 'Available',
+  'Visited_&_Shortlisted': 'Visited & Shortlisted',
+  'Booked/Rented_Out': 'Booked/Rented Out',
+  My_Final_Choice: 'My Final Choice',
+} as const;
+
 export type ListingInputBathroom = typeof ListingInputBathroom[keyof typeof ListingInputBathroom];
 
 
@@ -141,6 +185,10 @@ export interface ListingInput {
   category: ListingInputCategory;
   rent: number;
   isNegotiable: boolean;
+  negotiationStatus?: ListingInputNegotiationStatus;
+  /** @nullable */
+  finalNegotiatedRent?: number | null;
+  propertyAvailabilityStatus?: ListingInputPropertyAvailabilityStatus;
   bills: Bills;
   bathroom: ListingInputBathroom;
   /** @nullable */
@@ -190,6 +238,26 @@ export const ListingUpdateCategory = {
   Seat: 'Seat',
 } as const;
 
+export type ListingUpdateNegotiationStatus = typeof ListingUpdateNegotiationStatus[keyof typeof ListingUpdateNegotiationStatus];
+
+
+export const ListingUpdateNegotiationStatus = {
+  Not_Started: 'Not Started',
+  In_Discussion: 'In Discussion',
+  Offered_Made: 'Offered Made',
+  'Rejected/Declined': 'Rejected/Declined',
+} as const;
+
+export type ListingUpdatePropertyAvailabilityStatus = typeof ListingUpdatePropertyAvailabilityStatus[keyof typeof ListingUpdatePropertyAvailabilityStatus];
+
+
+export const ListingUpdatePropertyAvailabilityStatus = {
+  Available: 'Available',
+  'Visited_&_Shortlisted': 'Visited & Shortlisted',
+  'Booked/Rented_Out': 'Booked/Rented Out',
+  My_Final_Choice: 'My Final Choice',
+} as const;
+
 export type ListingUpdateBathroom = typeof ListingUpdateBathroom[keyof typeof ListingUpdateBathroom];
 
 
@@ -215,6 +283,10 @@ export interface ListingUpdate {
   category?: ListingUpdateCategory;
   rent?: number;
   isNegotiable?: boolean;
+  negotiationStatus?: ListingUpdateNegotiationStatus;
+  /** @nullable */
+  finalNegotiatedRent?: number | null;
+  propertyAvailabilityStatus?: ListingUpdatePropertyAvailabilityStatus;
   bills?: Bills;
   bathroom?: ListingUpdateBathroom;
   /** @nullable */

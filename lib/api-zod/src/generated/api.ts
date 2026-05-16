@@ -32,6 +32,9 @@ export const ListListingsResponseItem = zod.object({
   "category": zod.enum(['Sublet', 'Mess', 'Flat', 'Seat']),
   "rent": zod.number(),
   "isNegotiable": zod.boolean(),
+  "negotiationStatus": zod.enum(['Not Started', 'In Discussion', 'Offered Made', 'Rejected/Declined']).optional(),
+  "finalNegotiatedRent": zod.number().nullish(),
+  "propertyAvailabilityStatus": zod.enum(['Available', 'Visited & Shortlisted', 'Booked/Rented Out', 'My Final Choice']).optional(),
   "bills": zod.object({
   "electricity": zod.number().nullish(),
   "wifi": zod.number().nullish(),
@@ -83,6 +86,9 @@ export const CreateListingBody = zod.object({
   "category": zod.enum(['Sublet', 'Mess', 'Flat', 'Seat']),
   "rent": zod.number(),
   "isNegotiable": zod.boolean(),
+  "negotiationStatus": zod.enum(['Not Started', 'In Discussion', 'Offered Made', 'Rejected/Declined']).optional(),
+  "finalNegotiatedRent": zod.number().nullish(),
+  "propertyAvailabilityStatus": zod.enum(['Available', 'Visited & Shortlisted', 'Booked/Rented Out', 'My Final Choice']).optional(),
   "bills": zod.object({
   "electricity": zod.number().nullish(),
   "wifi": zod.number().nullish(),
@@ -152,6 +158,9 @@ export const GetListingResponse = zod.object({
   "category": zod.enum(['Sublet', 'Mess', 'Flat', 'Seat']),
   "rent": zod.number(),
   "isNegotiable": zod.boolean(),
+  "negotiationStatus": zod.enum(['Not Started', 'In Discussion', 'Offered Made', 'Rejected/Declined']).optional(),
+  "finalNegotiatedRent": zod.number().nullish(),
+  "propertyAvailabilityStatus": zod.enum(['Available', 'Visited & Shortlisted', 'Booked/Rented Out', 'My Final Choice']).optional(),
   "bills": zod.object({
   "electricity": zod.number().nullish(),
   "wifi": zod.number().nullish(),
@@ -206,6 +215,9 @@ export const UpdateListingBody = zod.object({
   "category": zod.enum(['Sublet', 'Mess', 'Flat', 'Seat']).optional(),
   "rent": zod.number().optional(),
   "isNegotiable": zod.boolean().optional(),
+  "negotiationStatus": zod.enum(['Not Started', 'In Discussion', 'Offered Made', 'Rejected/Declined']).optional(),
+  "finalNegotiatedRent": zod.number().nullish(),
+  "propertyAvailabilityStatus": zod.enum(['Available', 'Visited & Shortlisted', 'Booked/Rented Out', 'My Final Choice']).optional(),
   "bills": zod.object({
   "electricity": zod.number().nullish(),
   "wifi": zod.number().nullish(),
@@ -252,6 +264,9 @@ export const UpdateListingResponse = zod.object({
   "category": zod.enum(['Sublet', 'Mess', 'Flat', 'Seat']),
   "rent": zod.number(),
   "isNegotiable": zod.boolean(),
+  "negotiationStatus": zod.enum(['Not Started', 'In Discussion', 'Offered Made', 'Rejected/Declined']).optional(),
+  "finalNegotiatedRent": zod.number().nullish(),
+  "propertyAvailabilityStatus": zod.enum(['Available', 'Visited & Shortlisted', 'Booked/Rented Out', 'My Final Choice']).optional(),
   "bills": zod.object({
   "electricity": zod.number().nullish(),
   "wifi": zod.number().nullish(),

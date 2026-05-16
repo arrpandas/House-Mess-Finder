@@ -67,9 +67,11 @@ router.get("/listings", async (req, res): Promise<void> => {
     ...r,
     rent: Number(r.rent),
     advanceDeposit: r.advanceDeposit != null ? Number(r.advanceDeposit) : null,
+    finalNegotiatedRent: r.finalNegotiatedRent != null ? Number(r.finalNegotiatedRent) : null,
     serviceCharge: r.serviceCharge != null ? Number(r.serviceCharge) : null,
     bills: r.bills as Record<string, number>,
     contactInfo: r.contactInfo as { name: string; mobile: string },
+
     pros: r.pros ?? [],
     cons: r.cons ?? [],
     images: r.images ?? [],
@@ -92,6 +94,9 @@ router.post("/listings", async (req, res): Promise<void> => {
     category,
     rent,
     isNegotiable,
+    negotiationStatus,
+    finalNegotiatedRent,
+    propertyAvailabilityStatus,
     bills,
     bathroom,
     roommates,
@@ -122,6 +127,7 @@ router.post("/listings", async (req, res): Promise<void> => {
     googleMapUrl,
   } = parsed.data;
 
+
   const [row] = await db
     .insert(listingsTable)
     .values({
@@ -129,6 +135,10 @@ router.post("/listings", async (req, res): Promise<void> => {
       category,
       rent: String(rent),
       isNegotiable: isNegotiable ?? false,
+      negotiationStatus: negotiationStatus ?? undefined,
+      finalNegotiatedRent:
+        finalNegotiatedRent != null ? String(finalNegotiatedRent) : null,
+      propertyAvailabilityStatus: propertyAvailabilityStatus ?? undefined,
       bills: bills ?? {},
       bathroom,
       roommates: roommates ?? null,
@@ -164,6 +174,9 @@ router.post("/listings", async (req, res): Promise<void> => {
     ...row,
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
+    propertyAvailabilityStatus: row.propertyAvailabilityStatus,
+    negotiationStatus: row.negotiationStatus,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
@@ -196,6 +209,9 @@ router.get("/listings/:id", async (req, res): Promise<void> => {
     ...row,
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
+    propertyAvailabilityStatus: row.propertyAvailabilityStatus,
+    negotiationStatus: row.negotiationStatus,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
@@ -226,8 +242,15 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.category !== undefined) updates.category = d.category;
   if (d.rent !== undefined) updates.rent = String(d.rent);
   if (d.isNegotiable !== undefined) updates.isNegotiable = d.isNegotiable;
+  if (d.negotiationStatus !== undefined) updates.negotiationStatus = d.negotiationStatus;
+  if (d.finalNegotiatedRent !== undefined)
+    updates.finalNegotiatedRent =
+      d.finalNegotiatedRent != null ? String(d.finalNegotiatedRent) : null;
+  if (d.propertyAvailabilityStatus !== undefined)
+    updates.propertyAvailabilityStatus = d.propertyAvailabilityStatus;
   if (d.bills !== undefined) updates.bills = d.bills;
   if (d.bathroom !== undefined) updates.bathroom = d.bathroom;
+
   if (d.roommates !== undefined) updates.roommates = d.roommates;
   if (d.distance !== undefined) updates.distance = d.distance;
   if (d.floor !== undefined) updates.floor = d.floor;
@@ -270,7 +293,11 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
     ...row,
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
+    propertyAvailabilityStatus: row.propertyAvailabilityStatus,
+    negotiationStatus: row.negotiationStatus,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
+
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],

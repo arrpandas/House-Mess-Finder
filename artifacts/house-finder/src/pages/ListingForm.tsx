@@ -51,7 +51,11 @@ const formSchema = z.object({
   category: z.enum(["Sublet", "Mess", "Flat", "Seat"]),
   rent: z.coerce.number().min(0, "Rent must be a positive number"),
   isNegotiable: z.boolean().default(false),
+  negotiationStatus: z.enum(["Not Started", "In Discussion", "Offered Made", "Rejected/Declined"]).default("Not Started"),
+  finalNegotiatedRent: z.coerce.number().min(0, "Final rent must be a positive number").optional().or(z.literal("")),
+  propertyAvailabilityStatus: z.enum(["Available", "Visited & Shortlisted", "Booked/Rented Out", "My Final Choice"]).default("Available"),
   bathroom: z.enum(["Attached", "Common"]),
+
   roommates: z.coerce.number().int().optional().or(z.literal("")),
   distance: z.string().optional(),
   floor: z.string().optional(),
@@ -116,7 +120,11 @@ export default function ListingForm() {
       category: "Flat",
       rent: 0,
       isNegotiable: false,
+      negotiationStatus: "Not Started",
+      finalNegotiatedRent: "",
+      propertyAvailabilityStatus: "Available",
       bathroom: "Attached",
+
       roommates: "",
       distance: "",
       floor: "",
@@ -157,7 +165,11 @@ export default function ListingForm() {
         category: existingListing.category as any,
         rent: Number(existingListing.rent),
         isNegotiable: existingListing.isNegotiable,
+        negotiationStatus: existingListing.negotiationStatus ?? "Not Started",
+        finalNegotiatedRent: existingListing.finalNegotiatedRent ?? "",
+        propertyAvailabilityStatus: existingListing.propertyAvailabilityStatus ?? "Available",
         bathroom: existingListing.bathroom as any,
+
         roommates: existingListing.roommates ?? "",
         distance: existingListing.distance ?? "",
         floor: existingListing.floor ?? "",
@@ -347,11 +359,16 @@ export default function ListingForm() {
 
     const payload = {
       location: values.location,
+
       category: values.category,
       rent: values.rent,
       isNegotiable: values.isNegotiable,
+      negotiationStatus: values.negotiationStatus,
+      finalNegotiatedRent: values.finalNegotiatedRent !== "" ? Number(values.finalNegotiatedRent) : null,
+      propertyAvailabilityStatus: values.propertyAvailabilityStatus,
       bills,
       bathroom: values.bathroom,
+
       roommates: values.roommates !== "" && values.roommates != null ? Number(values.roommates) : null,
       distance: values.distance || null,
       floor: values.floor || null,
@@ -466,6 +483,49 @@ export default function ListingForm() {
                   </FormItem>
                 )} />
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <FormField control={form.control} name="negotiationStatus" render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Negotiation Status</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger><SelectValue placeholder="Select status..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Not Started">🟡 Not Started</SelectItem>
+                          <SelectItem value="In Discussion">🔵 In Discussion</SelectItem>
+                          <SelectItem value="Offered Made">🟢 Offered Made</SelectItem>
+                          <SelectItem value="Rejected/Declined">🔴 Rejected/Declined</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="finalNegotiatedRent" render={({ field }) => (
+                  <FormItem><FormLabel>Final Negotiated Rent</FormLabel><FormControl><Input type="number" min={0} placeholder="৳ Final rent, e.g. ৳ 11,500" {...field} value={field.value ?? ""} onChange={(e)=>field.onChange(e.target.value)} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+
+              <FormField control={form.control} name="propertyAvailabilityStatus" render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Property Availability Status</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger><SelectValue placeholder="Select property status..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Available">🟢 Available</SelectItem>
+                        <SelectItem value="Visited & Shortlisted">🟡 Visited & Shortlisted</SelectItem>
+                        <SelectItem value="Booked/Rented Out">🔒 Booked/Rented Out</SelectItem>
+                        <SelectItem value="My Final Choice">🎉 My Final Choice</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="advanceDeposit" render={({ field }) => (
