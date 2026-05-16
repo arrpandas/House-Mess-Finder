@@ -8,6 +8,7 @@ import {
   useUpdateListing,
   useGetListing,
   useRequestUploadUrl,
+  useUploadFromUrl,
   getListListingsQueryKey,
   getGetListingQueryKey,
 } from "@workspace/api-client-react";
@@ -19,7 +20,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -43,6 +43,7 @@ import {
   Loader2,
   ImagePlus,
   Film,
+  Link as LinkIcon,
 } from "lucide-react";
 
 const formSchema = z.object({
@@ -98,6 +99,7 @@ export default function ListingForm() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [imageUrl, setImageUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: existingListing, isLoading: isLoadingListing } = useGetListing(params.id!, {
@@ -194,10 +196,10 @@ export default function ListingForm() {
   }, [existingListing, form]);
 
   const { mutateAsync: requestUploadUrl } = useRequestUploadUrl();
+  const { mutateAsync: uploadFromUrl } = useUploadFromUrl();
 
   const uploadFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
-    console.log(`Starting upload for ${files.length} files...`);
     setUploadingCount((c) => c + files.length);
 
     const imagePaths: string[] = [];
@@ -208,14 +210,12 @@ export default function ListingForm() {
       const isVideo = file.type.startsWith("video/");
 
       if (!isImage && !isVideo) {
-        console.warn(`Skipping file ${file.name} as it's neither image nor video.`);
         toast({ title: `Skipping ${file.name}: Not an image or video`, variant: "destructive" });
         setUploadingCount((c) => c - 1);
         continue;
       }
 
       try {
-        console.log(`Requesting upload URL for ${file.name}...`);
         const result = await requestUploadUrl({
           data: {
             name: file.name,
@@ -224,7 +224,6 @@ export default function ListingForm() {
           },
         });
 
-        console.log(`Uploading ${file.name} to storage...`);
         const uploadResponse = await fetch(result.uploadURL, {
           method: "PUT",
           headers: { "Content-Type": file.type },
@@ -233,7 +232,6 @@ export default function ListingForm() {
 
         if (!uploadResponse.ok) throw new Error("Upload failed");
 
-        console.log(`Successfully uploaded ${file.name}. Path: ${result.objectPath}`);
         if (isImage) imagePaths.push(result.objectPath);
         else videoPaths.push(result.objectPath);
       } catch (err) {
@@ -248,6 +246,24 @@ export default function ListingForm() {
     if (videoPaths.length > 0) setUploadedVideos((prev) => [...prev, ...videoPaths]);
   }, [requestUploadUrl, toast]);
 
+  const handleUrlUpload = async () => {
+    if (!imageUrl.trim()) return;
+    setUploadingCount((c) => c + 1);
+    try {
+      const result = await uploadFromUrl({
+        data: { url: imageUrl.trim() },
+      });
+      setUploadedImages((prev) => [...prev, result.objectPath]);
+      setImageUrl("");
+      toast({ title: "Image uploaded from URL" });
+    } catch (err) {
+      console.error("Error uploading from URL:", err);
+      toast({ title: "Failed to upload image from URL", variant: "destructive" });
+    } finally {
+      setUploadingCount((c) => c - 1);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     uploadFiles(files);
@@ -261,7 +277,6 @@ export default function ListingForm() {
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setIsDragging(false);
-    console.log("Files dropped!");
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       uploadFiles(Array.from(e.dataTransfer.files));
     }
@@ -269,9 +284,7 @@ export default function ListingForm() {
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
-      console.log("Paste detected!");
       let files: File[] = [];
-      
       if (e.clipboardData?.files && e.clipboardData.files.length > 0) {
         files = Array.from(e.clipboardData.files);
       } else if (e.clipboardData?.items) {
@@ -285,7 +298,6 @@ export default function ListingForm() {
       }
       
       if (files.length > 0) {
-        console.log(`Found ${files.length} files in clipboard.`);
         uploadFiles(files);
       }
     };
@@ -572,30 +584,51 @@ export default function ListingForm() {
 
             <section className="bg-card border rounded-xl p-5 space-y-6">
               <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">6. Media</h2>
-              <div className="space-y-4">
-                <p className="text-xs text-muted-foreground">Tip: Drag & drop or paste images/videos anywhere!</p>
-                <div
-                  className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${isDragging ? "border-primary bg-primary/5 scale-[0.99]" : "hover:border-primary hover:bg-muted/50"}`}
-                  onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop}
-                >
-                  {uploadingCount > 0 ? (
-                    <div className="flex flex-col items-center gap-3 text-muted-foreground"><Loader2 className="w-10 h-10 animate-spin text-primary" /><p className="text-sm font-medium">Uploading {uploadingCount} files...</p></div>
-                  ) : isDragging ? (
-                    <div className="flex flex-col items-center gap-3 text-primary"><Upload className="w-10 h-10 animate-bounce" /><p className="text-sm font-bold">Drop files here</p></div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3 text-muted-foreground">
-                      <div className="relative">
-                        <ImagePlus className="w-10 h-10 opacity-40" />
-                        <Film className="w-6 h-6 opacity-40 absolute -bottom-1 -right-1 bg-background rounded-sm" />
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Tip: Drag & drop or paste images/videos anywhere!</p>
+                  <div
+                    className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${isDragging ? "border-primary bg-primary/5 scale-[0.99]" : "hover:border-primary hover:bg-muted/50"}`}
+                    onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop}
+                  >
+                    {uploadingCount > 0 ? (
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground"><Loader2 className="w-10 h-10 animate-spin text-primary" /><p className="text-sm font-medium">Uploading {uploadingCount} files...</p></div>
+                    ) : isDragging ? (
+                      <div className="flex flex-col items-center gap-3 text-primary"><Upload className="w-10 h-10 animate-bounce" /><p className="text-sm font-bold">Drop files here</p></div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                        <div className="relative">
+                          <ImagePlus className="w-10 h-10 opacity-40" />
+                          <Film className="w-6 h-6 opacity-40 absolute -bottom-1 -right-1 bg-background rounded-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-foreground">Click to upload, or drag & drop</p>
+                          <p className="text-xs">JPG, PNG, WEBP, MP4, WebM (Max 50MB)</p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-foreground">Click to upload, or drag & drop</p>
-                        <p className="text-xs">JPG, PNG, WEBP, MP4, WebM (Max 50MB)</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
                 </div>
-                <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Or paste image link</Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        className="pl-9" 
+                        placeholder="https://example.com/image.jpg" 
+                        value={imageUrl} 
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUrlUpload(); } }}
+                      />
+                    </div>
+                    <Button type="button" variant="secondary" onClick={handleUrlUpload} disabled={!imageUrl.trim() || uploadingCount > 0}>
+                      Add URL
+                    </Button>
+                  </div>
+                </div>
 
                 {uploadedImages.length > 0 && (
                   <div className="space-y-3">

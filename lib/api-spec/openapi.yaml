@@ -166,6 +166,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/UploadUrlResponse"
 
+  /storage/uploads/from-url:
+    post:
+      operationId: uploadFromUrl
+      tags: [storage]
+      summary: Upload an image from a URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadFromUrlRequest"
+      responses:
+        "200":
+          description: Uploaded object path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadFromUrlResponse"
+
   /storage/objects/{objectPath}:
     get:
       operationId: getStorageObject
@@ -536,4 +555,20 @@ components:
           type: string
       required:
         - uploadURL
+        - objectPath
+
+    UploadFromUrlRequest:
+      type: object
+      properties:
+        url:
+          type: string
+      required:
+        - url
+
+    UploadFromUrlResponse:
+      type: object
+      properties:
+        objectPath:
+          type: string
+      required:
         - objectPath

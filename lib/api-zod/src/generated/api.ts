@@ -318,6 +318,18 @@ export const RequestUploadUrlResponse = zod.object({
 
 
 /**
+ * @summary Upload an image from a URL
+ */
+export const UploadFromUrlBody = zod.object({
+  "url": zod.string()
+})
+
+export const UploadFromUrlResponse = zod.object({
+  "objectPath": zod.string()
+})
+
+
+/**
  * @summary Serve a stored object
  */
 export const GetStorageObjectParams = zod.object({

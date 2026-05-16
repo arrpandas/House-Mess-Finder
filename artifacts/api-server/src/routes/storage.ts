@@ -3,6 +3,8 @@ import { Readable } from "stream";
 import {
   RequestUploadUrlBody,
   RequestUploadUrlResponse,
+  UploadFromUrlBody,
+  UploadFromUrlResponse,
 } from "@workspace/api-zod";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 import { ObjectPermission } from "../lib/objectAcl";
@@ -40,6 +42,49 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
   } catch (error) {
     req.log.error({ err: error }, "Error generating upload URL");
     res.status(500).json({ error: "Failed to generate upload URL" });
+  }
+});
+
+/**
+ * POST /storage/uploads/from-url
+ *
+ * Downloads an image from a URL and saves it to object storage.
+ */
+router.post("/storage/uploads/from-url", async (req: Request, res: Response) => {
+  const parsed = UploadFromUrlBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Missing or invalid URL" });
+    return;
+  }
+
+  try {
+    const { url } = parsed.data;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image from URL: ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Generate a filename from the URL or use a default
+    const filename = url.split("/").pop() || "image";
+    
+    const objectPath = await objectStorageService.uploadObjectEntity(
+      filename,
+      buffer,
+      contentType
+    );
+
+    res.json(
+      UploadFromUrlResponse.parse({
+        objectPath,
+      })
+    );
+  } catch (error) {
+    req.log.error({ err: error }, "Error uploading from URL");
+    res.status(500).json({ error: "Failed to upload from URL" });
   }
 });
 

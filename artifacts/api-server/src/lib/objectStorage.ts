@@ -128,6 +128,29 @@ export class ObjectStorageService {
     });
   }
 
+  async uploadObjectEntity(
+    filename: string,
+    buffer: Buffer,
+    contentType: string
+  ): Promise<string> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    const objectId = randomUUID();
+    // Keep original extension if possible
+    const ext = filename.split(".").pop();
+    const finalFilename = ext ? `${objectId}.${ext}` : objectId;
+    const fullPath = `${privateObjectDir}/uploads/${finalFilename}`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const file = bucket.file(objectName);
+
+    await file.save(buffer, {
+      metadata: { contentType },
+    });
+
+    return `/objects/uploads/${finalFilename}`;
+  }
+
   async getObjectEntityFile(objectPath: string): Promise<File> {
     if (!objectPath.startsWith("/objects/")) {
       throw new ObjectNotFoundError();

@@ -281,6 +281,14 @@ export interface UploadUrlResponse {
   objectPath: string;
 }
 
+export interface UploadFromUrlRequest {
+  url: string;
+}
+
+export interface UploadFromUrlResponse {
+  objectPath: string;
+}
+
 export type ListListingsParams = {
 category?: string;
 sortBy?: ListListingsSortBy;

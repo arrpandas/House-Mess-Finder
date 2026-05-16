@@ -26,6 +26,8 @@ import type {
   ListingInput,
   ListingUpdate,
   ListingsSummary,
+  UploadFromUrlRequest,
+  UploadFromUrlResponse,
   UploadUrlRequest,
   UploadUrlResponse
 } from './api.schemas';
@@ -640,6 +642,77 @@ export const useRequestUploadUrl = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getRequestUploadUrlMutationOptions(options));
+    }
+
+export const getUploadFromUrlUrl = () => {
+
+
+
+
+  return `/api/storage/uploads/from-url`
+}
+
+/**
+ * @summary Upload an image from a URL
+ */
+export const uploadFromUrl = async (uploadFromUrlRequest: UploadFromUrlRequest, options?: RequestInit): Promise<UploadFromUrlResponse> => {
+
+  return customFetch<UploadFromUrlResponse>(getUploadFromUrlUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      uploadFromUrlRequest,)
+  }
+);}
+
+
+
+
+export const getUploadFromUrlMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadFromUrl>>, TError,{data: BodyType<UploadFromUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadFromUrl>>, TError,{data: BodyType<UploadFromUrlRequest>}, TContext> => {
+
+const mutationKey = ['uploadFromUrl'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadFromUrl>>, {data: BodyType<UploadFromUrlRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadFromUrl(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadFromUrlMutationResult = NonNullable<Awaited<ReturnType<typeof uploadFromUrl>>>
+    export type UploadFromUrlMutationBody = BodyType<UploadFromUrlRequest>
+    export type UploadFromUrlMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Upload an image from a URL
+ */
+export const useUploadFromUrl = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadFromUrl>>, TError,{data: BodyType<UploadFromUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadFromUrl>>,
+        TError,
+        {data: BodyType<UploadFromUrlRequest>},
+        TContext
+      > => {
+      return useMutation(getUploadFromUrlMutationOptions(options));
     }
 
 export const getGetStorageObjectUrl = (objectPath: string,) => {

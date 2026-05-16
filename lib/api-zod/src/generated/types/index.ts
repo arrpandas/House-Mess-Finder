@@ -25,5 +25,7 @@ export * from './listingUpdateCategory';
 export * from './listingUpdateFurnished';
 export * from './listListingsParams';
 export * from './listListingsSortBy';
+export * from './uploadFromUrlRequest';
+export * from './uploadFromUrlResponse';
 export * from './uploadUrlRequest';
 export * from './uploadUrlResponse';
