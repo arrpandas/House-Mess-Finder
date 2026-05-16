@@ -258,6 +258,11 @@ components:
         propertyAvailabilityStatus:
           type: string
           enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
+        billsStructure:
+          type: string
+          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
+        combinedBillsAmount:
+          type: ["number", "null"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:

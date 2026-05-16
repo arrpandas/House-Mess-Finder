@@ -66,6 +66,8 @@ const formSchema = z.object({
   hasChadAccess: z.boolean().default(false),
   hasGuestAccess: z.boolean().default(false),
   serviceCharge: z.coerce.number().optional().or(z.literal("")),
+  billsStructure: z.enum(["Itemized", "Fixed/Combined Bill", "Included in Rent"]).default("Itemized"),
+  combinedBillsAmount: z.coerce.number().optional().or(z.literal("")),
   hasGenerator: z.boolean().default(false),
   hasParking: z.boolean().default(false),
   hasSecurity: z.boolean().default(false),
@@ -82,8 +84,11 @@ const formSchema = z.object({
   billsWaste: z.coerce.number().optional().or(z.literal("")),
   billsGas: z.coerce.number().optional().or(z.literal("")),
   billsWater: z.coerce.number().optional().or(z.literal("")),
+  billsStructure: z.enum(["Itemized", "Fixed/Combined Bill", "Included in Rent"]).default("Itemized"),
+  combinedBillsAmount: z.coerce.number().optional().or(z.literal("")),
   contactName: z.string().optional().or(z.literal("")),
   contactMobile: z.string().min(1, "Contact mobile is required"),
+
   googleMapUrl: z.string().optional(),
 });
 
@@ -196,6 +201,8 @@ export default function ListingForm() {
         billsWaste: bills.waste ?? "",
         billsGas: bills.gas ?? "",
         billsWater: bills.water ?? "",
+        billsStructure: (existingListing.billsStructure as any) ?? "Itemized",
+        combinedBillsAmount: existingListing.combinedBillsAmount ?? "",
         contactName: existingListing.contactInfo?.name ?? "",
         contactMobile: existingListing.contactInfo?.mobile ?? "",
         googleMapUrl: existingListing.googleMapUrl ?? "",
@@ -350,14 +357,25 @@ export default function ListingForm() {
 
   const onSubmit = (values: FormValues) => {
     const bills: Record<string, number> = {};
-    if (values.billsElectricity !== "" && values.billsElectricity != null) bills.electricity = Number(values.billsElectricity);
-    if (values.billsWifi !== "" && values.billsWifi != null) bills.wifi = Number(values.billsWifi);
-    if (values.billsMaid !== "" && values.billsMaid != null) bills.maid = Number(values.billsMaid);
-    if (values.billsWaste !== "" && values.billsWaste != null) bills.waste = Number(values.billsWaste);
-    if (values.billsGas !== "" && values.billsGas != null) bills.gas = Number(values.billsGas);
-    if (values.billsWater !== "" && values.billsWater != null) bills.water = Number(values.billsWater);
 
-    const payload = {
+    if (values.billsStructure === "Itemized") {
+      if (values.billsElectricity !== "" && values.billsElectricity != null) bills.electricity = Number(values.billsElectricity);
+      if (values.billsWifi !== "" && values.billsWifi != null) bills.wifi = Number(values.billsWifi);
+      if (values.billsMaid !== "" && values.billsMaid != null) bills.maid = Number(values.billsMaid);
+      if (values.billsWaste !== "" && values.billsWaste != null) bills.waste = Number(values.billsWaste);
+      if (values.billsGas !== "" && values.billsGas != null) bills.gas = Number(values.billsGas);
+      if (values.billsWater !== "" && values.billsWater != null) bills.water = Number(values.billsWater);
+    }
+
+    const combinedBillsAmount =
+      values.billsStructure === "Fixed/Combined Bill" && values.combinedBillsAmount !== ""
+        ? Number(values.combinedBillsAmount)
+        : null;
+
+      const payload = {
+        billsStructure: values.billsStructure,
+        combinedBillsAmount,
+
       location: values.location,
 
       category: values.category,
@@ -611,13 +629,93 @@ export default function ListingForm() {
 
             <section className="bg-card border rounded-xl p-5 space-y-6">
               <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">3. Bills</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                {["Electricity", "Wifi", "Gas", "Water", "Maid", "Waste"].map((bill) => (
-                  <FormField key={bill} control={form.control} name={`bills${bill}` as any} render={({ field }) => (
-                    <FormItem><FormLabel>{bill} (৳)</FormLabel><FormControl><Input type="number" min={0} placeholder="0" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                ))}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="billsStructure"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Bills Structure</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          className="flex flex-col gap-2"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="Itemized" />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">📋 Itemized / Alada Bill</FormLabel>
+                          </FormItem>
+
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="Fixed/Combined Bill" />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">💰 Fixed / Combined Bill</FormLabel>
+                          </FormItem>
+
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="Included in Rent" />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">🏠 Included in Rent</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/** Combined amount */}
+                <FormField
+                  control={form.control}
+                  name="combinedBillsAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Combined Bills Amount</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="৳ All bills together, e.g.: 1500"
+                          {...field}
+                          value={field.value ?? ("" as any)}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          disabled={form.watch("billsStructure") !== "Fixed/Combined Bill"}
+                          className={form.watch("billsStructure") !== "Fixed/Combined Bill" ? "opacity-60" : ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+
+              {/** Itemized inputs only */}
+              {form.watch("billsStructure") === "Itemized" && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                  {["Electricity", "Wifi", "Gas", "Water", "Maid", "Waste"].map((bill) => (
+                    <FormField
+                      key={bill}
+                      control={form.control}
+                      name={`bills${bill}` as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{bill} (৳)</FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} placeholder="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="bg-card border rounded-xl p-5 space-y-6">

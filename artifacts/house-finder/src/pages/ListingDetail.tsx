@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getListListingsQueryKey } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { negotiationStatusMeta, propertyAvailabilityStatusMeta } from "@/lib/negotiationMeta";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -333,6 +334,42 @@ export default function ListingDetail() {
             <span className="text-sm font-medium" data-testid="text-location">{listing.location}</span>
           </div>
 
+          {/* Negotiation + Availability */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {(() => {
+              const ns = listing.negotiationStatus ?? "Not Started";
+              const meta = negotiationStatusMeta[ns as keyof typeof negotiationStatusMeta];
+              return (
+                <span
+                  className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border ${meta?.className ?? "bg-gray-100 text-gray-800 border-gray-200"}`}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-current opacity-80" />
+                  {meta?.label ?? ns}
+                </span>
+              );
+            })()}
+
+            {(() => {
+              const pa = listing.propertyAvailabilityStatus ?? "Available";
+              const meta = propertyAvailabilityStatusMeta[pa as keyof typeof propertyAvailabilityStatusMeta];
+              return (
+                <span
+                  className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border ${meta?.className ?? "bg-gray-100 text-gray-800 border-gray-200"}`}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-current opacity-80" />
+                  {meta?.label ?? pa}
+                </span>
+              );
+            })()}
+
+            {listing.finalNegotiatedRent != null && (
+              <span className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border bg-foreground/5 text-foreground border-border">
+                Final: ৳{Number(listing.finalNegotiatedRent).toLocaleString()}
+              </span>
+            )}
+          </div>
+
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Bath className="w-4 h-4 text-primary" />
@@ -466,15 +503,47 @@ export default function ListingDetail() {
                   <Phone className="w-3.5 h-3.5 text-primary" />
                   <span data-testid="text-contact-mobile">{listing.contactInfo?.mobile}</span>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-2 border-green-200 bg-green-50 hover:bg-green-100 text-green-700 hover:text-green-800"
-                  onClick={() => window.open(`https://wa.me/${listing.contactInfo?.mobile.replace(/[^0-9]/g, "")}`, "_blank")}
-                >
-                  <MessageCircle className="w-3.5 h-3.5 mr-1.5 fill-current" />
-                  WhatsApp
-                </Button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="WhatsApp"
+                    className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 hover:text-green-800 transition-colors"
+                    onClick={() => {
+                      const mobile = listing.contactInfo?.mobile?.replace(/[^0-9]/g, "");
+                      if (!mobile) return;
+                      window.open(`https://wa.me/${mobile}`, "_blank");
+                    }}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label="Call"
+                    className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors"
+                    onClick={() => {
+                      const mobile = listing.contactInfo?.mobile?.replace(/[^0-9]/g, "");
+                      if (!mobile) return;
+                      window.location.href = `tel:${mobile}`;
+                    }}
+                  >
+                    <Phone className="w-4 h-4" />
+                  </button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 border-green-200 bg-green-50 hover:bg-green-100 text-green-700 hover:text-green-800"
+                    onClick={() => {
+                      const mobile = listing.contactInfo?.mobile?.replace(/[^0-9]/g, "");
+                      if (!mobile) return;
+                      window.open(`https://wa.me/${mobile}`, "_blank");
+                    }}
+                  >
+                    WhatsApp
+                  </Button>
+                </div>
+
               </div>
             </div>
           </div>

@@ -22,7 +22,10 @@ export const listingsTable = pgTable("listings", {
   propertyAvailabilityStatus: text("property_availability_status")
     .notNull()
     .default("Available"),
+  billsStructure: text("bills_structure").notNull().default("Itemized"),
+  combinedBillsAmount: numeric("combined_bills_amount", { precision: 10, scale: 2 }),
   bills: jsonb("bills").notNull().default({}),
+
   bathroom: text("bathroom").notNull(),
   roommates: integer("roommates"),
   distance: text("distance"),

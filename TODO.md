@@ -11,6 +11,7 @@
 
 - [x] Update `artifacts/api-server/src/routes/listings.ts` to persist/return new fields
 
+
 ## Step 4: Frontend form
 - [x] Update `artifacts/house-finder/src/pages/ListingForm.tsx` (schema, UI, defaults/reset, payload)
 
