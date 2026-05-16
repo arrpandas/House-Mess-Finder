@@ -66,11 +66,14 @@ router.get("/listings", async (req, res): Promise<void> => {
   const listings = rows.map((r) => ({
     ...r,
     rent: Number(r.rent),
+    advanceDeposit: r.advanceDeposit != null ? Number(r.advanceDeposit) : null,
+    serviceCharge: r.serviceCharge != null ? Number(r.serviceCharge) : null,
     bills: r.bills as Record<string, number>,
     contactInfo: r.contactInfo as { name: string; mobile: string },
     pros: r.pros ?? [],
     cons: r.cons ?? [],
     images: r.images ?? [],
+    videos: r.videos ?? [],
     createdAt: r.createdAt.toISOString(),
   }));
 
@@ -96,15 +99,25 @@ router.post("/listings", async (req, res): Promise<void> => {
     floor,
     advanceDeposit,
     availableFrom,
+    serviceCharge,
     hasLift,
     hasBalcony,
     hasChadAccess,
     hasGuestAccess,
+    hasGenerator,
+    hasParking,
+    hasSecurity,
+    hasFridge,
+    hasAc,
+    hasGeyser,
+    hasCctv,
+    hasMealSystem,
     timeLimit,
     furnished,
     pros,
     cons,
     images,
+    videos,
     contactInfo,
     googleMapUrl,
   } = parsed.data;
@@ -121,17 +134,27 @@ router.post("/listings", async (req, res): Promise<void> => {
       roommates: roommates ?? null,
       distance: distance ?? null,
       floor: floor ?? null,
-      advanceDeposit: advanceDeposit ?? null,
+      advanceDeposit: advanceDeposit != null ? String(advanceDeposit) : null,
       availableFrom: availableFrom ?? null,
+      serviceCharge: serviceCharge != null ? String(serviceCharge) : null,
       hasLift: hasLift ?? false,
       hasBalcony: hasBalcony ?? false,
       hasChadAccess: hasChadAccess ?? false,
       hasGuestAccess: hasGuestAccess ?? false,
+      hasGenerator: hasGenerator ?? false,
+      hasParking: hasParking ?? false,
+      hasSecurity: hasSecurity ?? false,
+      hasFridge: hasFridge ?? false,
+      hasAc: hasAc ?? false,
+      hasGeyser: hasGeyser ?? false,
+      hasCctv: hasCctv ?? false,
+      hasMealSystem: hasMealSystem ?? false,
       timeLimit: timeLimit ?? null,
       furnished: furnished ?? null,
       pros: pros ?? [],
       cons: cons ?? [],
       images: images ?? [],
+      videos: videos ?? [],
       contactInfo: contactInfo as Record<string, string>,
       googleMapUrl: googleMapUrl ?? null,
     })
@@ -140,11 +163,14 @@ router.post("/listings", async (req, res): Promise<void> => {
   res.status(201).json({
     ...row,
     rent: Number(row.rent),
+    advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],
     cons: row.cons ?? [],
     images: row.images ?? [],
+    videos: row.videos ?? [],
     createdAt: row.createdAt.toISOString(),
   });
 });
@@ -169,11 +195,14 @@ router.get("/listings/:id", async (req, res): Promise<void> => {
   res.json({
     ...row,
     rent: Number(row.rent),
+    advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],
     cons: row.cons ?? [],
     images: row.images ?? [],
+    videos: row.videos ?? [],
     createdAt: row.createdAt.toISOString(),
   });
 });
@@ -202,17 +231,27 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.roommates !== undefined) updates.roommates = d.roommates;
   if (d.distance !== undefined) updates.distance = d.distance;
   if (d.floor !== undefined) updates.floor = d.floor;
-  if (d.advanceDeposit !== undefined) updates.advanceDeposit = d.advanceDeposit;
+  if (d.advanceDeposit !== undefined) updates.advanceDeposit = d.advanceDeposit != null ? String(d.advanceDeposit) : null;
   if (d.availableFrom !== undefined) updates.availableFrom = d.availableFrom;
+  if (d.serviceCharge !== undefined) updates.serviceCharge = d.serviceCharge != null ? String(d.serviceCharge) : null;
   if (d.hasLift !== undefined) updates.hasLift = d.hasLift;
   if (d.hasBalcony !== undefined) updates.hasBalcony = d.hasBalcony;
   if (d.hasChadAccess !== undefined) updates.hasChadAccess = d.hasChadAccess;
   if (d.hasGuestAccess !== undefined) updates.hasGuestAccess = d.hasGuestAccess;
+  if (d.hasGenerator !== undefined) updates.hasGenerator = d.hasGenerator;
+  if (d.hasParking !== undefined) updates.hasParking = d.hasParking;
+  if (d.hasSecurity !== undefined) updates.hasSecurity = d.hasSecurity;
+  if (d.hasFridge !== undefined) updates.hasFridge = d.hasFridge;
+  if (d.hasAc !== undefined) updates.hasAc = d.hasAc;
+  if (d.hasGeyser !== undefined) updates.hasGeyser = d.hasGeyser;
+  if (d.hasCctv !== undefined) updates.hasCctv = d.hasCctv;
+  if (d.hasMealSystem !== undefined) updates.hasMealSystem = d.hasMealSystem;
   if (d.timeLimit !== undefined) updates.timeLimit = d.timeLimit;
   if (d.furnished !== undefined) updates.furnished = d.furnished;
   if (d.pros !== undefined) updates.pros = d.pros;
   if (d.cons !== undefined) updates.cons = d.cons;
   if (d.images !== undefined) updates.images = d.images;
+  if (d.videos !== undefined) updates.videos = d.videos;
   if (d.contactInfo !== undefined) updates.contactInfo = d.contactInfo;
   if (d.googleMapUrl !== undefined) updates.googleMapUrl = d.googleMapUrl;
 
@@ -230,11 +269,14 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   res.json({
     ...row,
     rent: Number(row.rent),
+    advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
+    serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],
     cons: row.cons ?? [],
     images: row.images ?? [],
+    videos: row.videos ?? [],
     createdAt: row.createdAt.toISOString(),
   });
 });

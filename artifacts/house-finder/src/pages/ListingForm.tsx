@@ -510,7 +510,7 @@ export default function ListingForm() {
               </div>
               
               <div className="space-y-4">
-                <FormLabel>Amenities</FormLabel>
+                <Label className="text-sm font-medium">Amenities</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6">
                   {[
                     { name: "hasLift", label: "Lift" },
