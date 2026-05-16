@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { useCompare } from "@/lib/compare-context";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, Home, Bath, Users, Ruler, MapPin, Phone, CheckCircle, XCircle, Layers, Clock, Sofa } from "lucide-react";
+import { ArrowLeft, X, Home, Bath, Users, Ruler, MapPin, Phone, CheckCircle, XCircle, Layers, Clock, Sofa, Banknote, Calendar } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
   let sum = 0;
@@ -135,6 +135,14 @@ export default function Compare() {
               values={selectedListings.map((l) => `৳${Number(l.rent).toLocaleString()}/mo${l.isNegotiable ? " (Neg.)" : ""}`)}
             />
             <Row
+              label="Advance Deposit"
+              values={selectedListings.map((l) => l.advanceDeposit)}
+            />
+            <Row
+              label="Available From"
+              values={selectedListings.map((l) => l.availableFrom)}
+            />
+            <Row
               label="Bills Total"
               values={selectedListings.map((l) => {
                 const bills = (l.bills ?? {}) as Record<string, number | null | undefined>;
@@ -159,7 +167,13 @@ export default function Compare() {
 
             {/* Property */}
             <Row label="Bathroom" values={selectedListings.map((l) => l.bathroom)} />
-            <Row label="Floor" values={selectedListings.map((l) => l.floor != null ? `Floor ${l.floor}` : null)} />
+            <Row 
+              label="Floor" 
+              values={selectedListings.map((l) => {
+                if (!l.floor) return null;
+                return l.floor.includes("floor") ? l.floor : `Floor ${l.floor}`;
+              })} 
+            />
             <Row label="Furnished" values={selectedListings.map((l) => l.furnished ?? null)} />
             <Row label="Roommates" values={selectedListings.map((l) => l.roommates != null ? `${l.roommates}` : null)} />
             <Row label="Distance" values={selectedListings.map((l) => l.distance)} />

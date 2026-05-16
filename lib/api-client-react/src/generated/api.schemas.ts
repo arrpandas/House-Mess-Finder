@@ -73,21 +73,25 @@ export interface Listing {
   /** @nullable */
   distance?: string | null;
   /** @nullable */
-  floor?: number | null;
+  floor?: string | null;
+  /** @nullable */
+  advanceDeposit?: string | null;
+  /** @nullable */
+  availableFrom?: string | null;
   hasLift: boolean;
   hasBalcony: boolean;
   hasChadAccess: boolean;
   hasGuestAccess: boolean;
   /** @nullable */
   serviceCharge?: number | null;
-  hasGenerator: boolean;
-  hasParking: boolean;
-  hasSecurity: boolean;
-  hasFridge: boolean;
-  hasAc: boolean;
-  hasGeyser: boolean;
-  hasCctv: boolean;
-  hasMealSystem: boolean;
+  hasGenerator?: boolean;
+  hasParking?: boolean;
+  hasSecurity?: boolean;
+  hasFridge?: boolean;
+  hasAc?: boolean;
+  hasGeyser?: boolean;
+  hasCctv?: boolean;
+  hasMealSystem?: boolean;
   /** @nullable */
   timeLimit?: string | null;
   /** @nullable */
@@ -95,7 +99,7 @@ export interface Listing {
   pros: string[];
   cons: string[];
   images: string[];
-  videos: string[];
+  videos?: string[];
   contactInfo: ContactInfo;
   /** @nullable */
   googleMapUrl?: string | null;
@@ -144,7 +148,11 @@ export interface ListingInput {
   /** @nullable */
   distance?: string | null;
   /** @nullable */
-  floor?: number | null;
+  floor?: string | null;
+  /** @nullable */
+  advanceDeposit?: string | null;
+  /** @nullable */
+  availableFrom?: string | null;
   hasLift?: boolean;
   hasBalcony?: boolean;
   hasChadAccess?: boolean;
@@ -214,7 +222,11 @@ export interface ListingUpdate {
   /** @nullable */
   distance?: string | null;
   /** @nullable */
-  floor?: number | null;
+  floor?: string | null;
+  /** @nullable */
+  advanceDeposit?: string | null;
+  /** @nullable */
+  availableFrom?: string | null;
   hasLift?: boolean;
   hasBalcony?: boolean;
   hasChadAccess?: boolean;

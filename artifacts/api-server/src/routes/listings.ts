@@ -94,6 +94,8 @@ router.post("/listings", async (req, res): Promise<void> => {
     roommates,
     distance,
     floor,
+    advanceDeposit,
+    availableFrom,
     hasLift,
     hasBalcony,
     hasChadAccess,
@@ -119,6 +121,8 @@ router.post("/listings", async (req, res): Promise<void> => {
       roommates: roommates ?? null,
       distance: distance ?? null,
       floor: floor ?? null,
+      advanceDeposit: advanceDeposit ?? null,
+      availableFrom: availableFrom ?? null,
       hasLift: hasLift ?? false,
       hasBalcony: hasBalcony ?? false,
       hasChadAccess: hasChadAccess ?? false,
@@ -198,6 +202,8 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.roommates !== undefined) updates.roommates = d.roommates;
   if (d.distance !== undefined) updates.distance = d.distance;
   if (d.floor !== undefined) updates.floor = d.floor;
+  if (d.advanceDeposit !== undefined) updates.advanceDeposit = d.advanceDeposit;
+  if (d.availableFrom !== undefined) updates.availableFrom = d.availableFrom;
   if (d.hasLift !== undefined) updates.hasLift = d.hasLift;
   if (d.hasBalcony !== undefined) updates.hasBalcony = d.hasBalcony;
   if (d.hasChadAccess !== undefined) updates.hasChadAccess = d.hasChadAccess;

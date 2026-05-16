@@ -241,7 +241,11 @@ components:
         distance:
           type: ["string", "null"]
         floor:
-          type: ["integer", "null"]
+          type: ["string", "null"]
+        advanceDeposit:
+          type: ["string", "null"]
+        availableFrom:
+          type: ["string", "null"]
         hasLift:
           type: boolean
         hasBalcony:
@@ -335,7 +339,11 @@ components:
         distance:
           type: ["string", "null"]
         floor:
-          type: ["integer", "null"]
+          type: ["string", "null"]
+        advanceDeposit:
+          type: ["string", "null"]
+        availableFrom:
+          type: ["string", "null"]
         hasLift:
           type: boolean
         hasBalcony:
@@ -418,7 +426,11 @@ components:
         distance:
           type: ["string", "null"]
         floor:
-          type: ["integer", "null"]
+          type: ["string", "null"]
+        advanceDeposit:
+          type: ["string", "null"]
+        availableFrom:
+          type: ["string", "null"]
         hasLift:
           type: boolean
         hasBalcony:

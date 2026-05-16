@@ -17,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -50,7 +53,9 @@ const formSchema = z.object({
   bathroom: z.enum(["Attached", "Common"]),
   roommates: z.coerce.number().int().optional().or(z.literal("")),
   distance: z.string().optional(),
-  floor: z.coerce.number().int().optional().or(z.literal("")),
+  floor: z.string().optional(),
+  advanceDeposit: z.string().optional(),
+  availableFrom: z.string().optional(),
   hasLift: z.boolean().default(false),
   hasBalcony: z.boolean().default(false),
   hasChadAccess: z.boolean().default(false),
@@ -113,6 +118,8 @@ export default function ListingForm() {
       roommates: "",
       distance: "",
       floor: "",
+      advanceDeposit: "",
+      availableFrom: "",
       hasLift: false,
       hasBalcony: false,
       hasChadAccess: false,
@@ -152,6 +159,8 @@ export default function ListingForm() {
         roommates: existingListing.roommates ?? "",
         distance: existingListing.distance ?? "",
         floor: existingListing.floor ?? "",
+        advanceDeposit: existingListing.advanceDeposit ?? "",
+        availableFrom: existingListing.availableFrom ?? "",
         hasLift: existingListing.hasLift,
         hasBalcony: existingListing.hasBalcony,
         hasChadAccess: existingListing.hasChadAccess,
@@ -333,7 +342,9 @@ export default function ListingForm() {
       bathroom: values.bathroom,
       roommates: values.roommates !== "" && values.roommates != null ? Number(values.roommates) : null,
       distance: values.distance || null,
-      floor: values.floor !== "" && values.floor != null ? Number(values.floor) : null,
+      floor: values.floor || null,
+      advanceDeposit: values.advanceDeposit || null,
+      availableFrom: values.availableFrom || null,
       hasLift: values.hasLift,
       hasBalcony: values.hasBalcony,
       hasChadAccess: values.hasChadAccess,
@@ -372,7 +383,7 @@ export default function ListingForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-12">
       <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => setLocation(isEditing ? `/listings/${params.id}` : "/")} data-testid="button-back-form">
@@ -387,83 +398,136 @@ export default function ListingForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Basic Info</h2>
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">1. Basic Info</h2>
+              
               <FormField control={form.control} name="location" render={({ field }) => (
-                <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g. Mohakhali Wireless" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="Ex: Mohakhali Wireless, Alley 5" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="category" render={({ field }) => (
-                  <FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Sublet">Sublet</SelectItem><SelectItem value="Mess">Mess</SelectItem><SelectItem value="Flat">Flat</SelectItem><SelectItem value="Seat">Seat</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  <FormItem className="space-y-3">
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-4">
+                        {["Flat", "Sublet", "Mess", "Seat"].map((cat) => (
+                          <FormItem key={cat} className="flex items-center space-x-2 space-y-0">
+                            <FormControl><RadioGroupItem value={cat} /></FormControl>
+                            <FormLabel className="font-normal cursor-pointer">{cat}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
+
                 <FormField control={form.control} name="bathroom" render={({ field }) => (
-                  <FormItem><FormLabel>Bathroom</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Attached">Attached</SelectItem><SelectItem value="Common">Common</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  <FormItem className="space-y-3">
+                    <FormLabel>Bathroom</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
+                        {["Attached", "Common"].map((type) => (
+                          <FormItem key={type} className="flex items-center space-x-2 space-y-0">
+                            <FormControl><RadioGroupItem value={type} /></FormControl>
+                            <FormLabel className="font-normal cursor-pointer">{type}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="rent" render={({ field }) => (
                   <FormItem><FormLabel>Rent (৳/month)</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="isNegotiable" render={({ field }) => (
-                  <FormItem className="flex flex-col justify-end pb-1"><FormLabel>&nbsp;</FormLabel><div className="flex items-center gap-2 h-9"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><Label className="cursor-pointer font-normal">Rent is negotiable</Label></div></FormItem>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Rent is negotiable</FormLabel>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
                 )} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <FormField control={form.control} name="advanceDeposit" render={({ field }) => (
+                  <FormItem><FormLabel>Advance/Security Deposit</FormLabel><FormControl><Input placeholder="Ex: 2 months rent" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="availableFrom" render={({ field }) => (
+                  <FormItem><FormLabel>Available From</FormLabel><FormControl><Input placeholder="Ex: Current month / Next month" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="roommates" render={({ field }) => (
-                  <FormItem><FormLabel>Roommates (optional)</FormLabel><FormControl><Input type="number" min={0} placeholder="e.g. 3" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Roommates</FormLabel><FormControl><Input type="number" min={0} placeholder="Number of roommates" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="distance" render={({ field }) => (
-                  <FormItem><FormLabel>Distance (optional)</FormLabel><FormControl><Input placeholder="e.g. 5 min walk" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Distance</FormLabel><FormControl><Input placeholder="Ex: 10 minutes walk / 2 km" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
+
               <FormField control={form.control} name="googleMapUrl" render={({ field }) => (
-                <FormItem><FormLabel>Google Map URL (optional)</FormLabel><FormControl><Input placeholder="https://maps.google.com/..." {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Google Map URL</FormLabel><FormControl><Input type="url" placeholder="https://maps.google.com/..." {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </section>
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Property Details</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">2. Property Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="floor" render={({ field }) => (
-                  <FormItem><FormLabel>Floor / Level (optional)</FormLabel><FormControl><Input type="number" min={0} placeholder="e.g. 3" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Floor / Level</FormLabel><FormControl><Input placeholder="Ex: 4th floor / 4 floors" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="serviceCharge" render={({ field }) => (
-                  <FormItem><FormLabel>Service Charge (optional)</FormLabel><FormControl><Input type="number" min={0} placeholder="e.g. 2000" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Service Charge</FormLabel><FormControl><Input type="number" min={0} placeholder="Ex: 2000" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="furnished" render={({ field }) => (
-                  <FormItem><FormLabel>Furnished Status</FormLabel><Select onValueChange={field.onChange} value={field.value ?? ""}><FormControl><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger></FormControl><SelectContent><SelectItem value="Unfurnished">Unfurnished</SelectItem><SelectItem value="Semi-furnished">Semi-furnished</SelectItem><SelectItem value="Fully furnished">Fully furnished</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Furnished Status</FormLabel><Select onValueChange={field.onChange} value={field.value ?? ""}><FormControl><SelectTrigger><SelectValue placeholder="Select status..." /></SelectTrigger></FormControl><SelectContent><SelectItem value="Unfurnished">Unfurnished</SelectItem><SelectItem value="Semi-furnished">Semi-furnished</SelectItem><SelectItem value="Fully furnished">Fully furnished</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="timeLimit" render={({ field }) => (
-                  <FormItem><FormLabel>Time Limit (optional)</FormLabel><FormControl><Input placeholder="e.g. 11 PM" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Time Limit</FormLabel><FormControl><Input placeholder="e.g. 11 PM" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6">
-                {[
-                  { name: "hasLift", label: "Lift" },
-                  { name: "hasBalcony", label: "Balcony" },
-                  { name: "hasChadAccess", label: "Roof Access" },
-                  { name: "hasGuestAccess", label: "Guest Access" },
-                  { name: "hasGenerator", label: "Generator" },
-                  { name: "hasParking", label: "Parking" },
-                  { name: "hasSecurity", label: "Security" },
-                  { name: "hasCctv", label: "CCTV" },
-                  { name: "hasFridge", label: "Fridge" },
-                  { name: "hasAc", label: "AC" },
-                  { name: "hasGeyser", label: "Geyser" },
-                  { name: "hasMealSystem", label: "Meal System" },
-                ].map((item) => (
-                  <FormField key={item.name} control={form.control} name={item.name as any} render={({ field }) => (
-                    <FormItem className="flex items-center gap-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="!mt-0 cursor-pointer font-normal">{item.label}</FormLabel></FormItem>
-                  )} />
-                ))}
+              
+              <div className="space-y-4">
+                <FormLabel>Amenities</FormLabel>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6">
+                  {[
+                    { name: "hasLift", label: "Lift" },
+                    { name: "hasBalcony", label: "Balcony" },
+                    { name: "hasChadAccess", label: "Roof Access" },
+                    { name: "hasGuestAccess", label: "Guest Access" },
+                    { name: "hasGenerator", label: "Generator" },
+                    { name: "hasParking", label: "Parking" },
+                    { name: "hasSecurity", label: "Security" },
+                    { name: "hasCctv", label: "CCTV" },
+                    { name: "hasFridge", label: "Fridge" },
+                    { name: "hasAc", label: "AC" },
+                    { name: "hasGeyser", label: "Geyser" },
+                    { name: "hasMealSystem", label: "Meal System" },
+                  ].map((item) => (
+                    <FormField key={item.name} control={form.control} name={item.name as any} render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="font-normal cursor-pointer">{item.label}</FormLabel>
+                      </FormItem>
+                    ))} />
+                  ))}
+                </div>
               </div>
             </section>
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Bills (optional)</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">3. Bills</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
                 {["Electricity", "Wifi", "Gas", "Water", "Maid", "Waste"].map((bill) => (
                   <FormField key={bill} control={form.control} name={`bills${bill}` as any} render={({ field }) => (
                     <FormItem><FormLabel>{bill} (৳)</FormLabel><FormControl><Input type="number" min={0} placeholder="0" {...field} /></FormControl><FormMessage /></FormItem>
@@ -472,94 +536,105 @@ export default function ListingForm() {
               </div>
             </section>
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Pros & Cons</h2>
-              <div className="grid sm:grid-cols-2 gap-6">
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">4. Pros & Cons</h2>
+              <div className="grid sm:grid-cols-2 gap-8">
                 <div>
-                  <Label className="text-green-600 mb-2 block">Pros</Label>
-                  <div className="flex gap-2 mb-2">
+                  <Label className="text-green-600 mb-3 block font-medium">Pros</Label>
+                  <div className="flex gap-2 mb-3">
                     <Input value={newPro} onChange={(e) => setNewPro(e.target.value)} placeholder="Add a pro..." onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPro(); } }} />
-                    <Button type="button" size="sm" variant="outline" onClick={addPro}><Plus className="w-4 h-4" /></Button>
+                    <Button type="button" size="icon" variant="outline" className="shrink-0" onClick={addPro}><Plus className="w-4 h-4" /></Button>
                   </div>
-                  <div className="space-y-1.5">{pros.map((p, i) => <div key={i} className="flex items-center gap-2 text-sm bg-green-50 text-green-800 rounded-lg px-3 py-1.5"><span className="flex-1">{p}</span><button type="button" onClick={() => setPros(pros.filter((_, j) => j !== i))}><X className="w-3.5 h-3.5" /></button></div>)}</div>
+                  <div className="space-y-2">{pros.map((p, i) => <div key={i} className="flex items-start gap-2 text-sm bg-green-50 text-green-800 rounded-lg px-3 py-2 border border-green-100"><span className="flex-1 leading-tight">{p}</span><button type="button" className="mt-0.5" onClick={() => setPros(pros.filter((_, j) => j !== i))}><X className="w-3.5 h-3.5" /></button></div>)}</div>
                 </div>
                 <div>
-                  <Label className="text-red-500 mb-2 block">Cons</Label>
-                  <div className="flex gap-2 mb-2">
+                  <Label className="text-red-500 mb-3 block font-medium">Cons</Label>
+                  <div className="flex gap-2 mb-3">
                     <Input value={newCon} onChange={(e) => setNewCon(e.target.value)} placeholder="Add a con..." onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCon(); } }} />
-                    <Button type="button" size="sm" variant="outline" onClick={addCon}><Plus className="w-4 h-4" /></Button>
+                    <Button type="button" size="icon" variant="outline" className="shrink-0" onClick={addCon}><Plus className="w-4 h-4" /></Button>
                   </div>
-                  <div className="space-y-1.5">{cons.map((c, i) => <div key={i} className="flex items-center gap-2 text-sm bg-red-50 text-red-700 rounded-lg px-3 py-1.5"><span className="flex-1">{c}</span><button type="button" onClick={() => setCons(cons.filter((_, j) => j !== i))}><X className="w-3.5 h-3.5" /></button></div>)}</div>
+                  <div className="space-y-2">{cons.map((c, i) => <div key={i} className="flex items-start gap-2 text-sm bg-red-50 text-red-700 rounded-lg px-3 py-2 border border-red-100"><span className="flex-1 leading-tight">{c}</span><button type="button" className="mt-0.5" onClick={() => setCons(cons.filter((_, j) => j !== i))}><X className="w-3.5 h-3.5" /></button></div>)}</div>
                 </div>
               </div>
             </section>
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Contact Info</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">5. Contact Info</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField control={form.control} name="contactName" render={({ field }) => (
-                  <FormItem><FormLabel>Name (optional)</FormLabel><FormControl><Input placeholder="Contact name" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="Ex: John Doe" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="contactMobile" render={({ field }) => (
-                  <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input placeholder="+880..." {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input type="tel" placeholder="01XXXXXXXXX" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
             </section>
 
-            <section className="bg-card border rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide">Media (optional)</h2>
-              <p className="text-xs text-muted-foreground mt-[-10px]">Tip: Drag & drop or paste images/videos anywhere!</p>
-              <div
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/5" : "hover:border-primary"}`}
-                onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop}
-              >
-                {uploadingCount > 0 ? (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="text-sm">Uploading {uploadingCount} files...</p></div>
-                ) : isDragging ? (
-                  <div className="flex flex-col items-center gap-2 text-primary"><Upload className="w-8 h-8 animate-bounce" /><p className="text-sm font-bold">Drop files here</p></div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <ImagePlus className="w-8 h-8 opacity-50" />
-                    <Film className="w-8 h-8 opacity-50 absolute mt-4 ml-4" />
-                    <p className="text-sm font-medium">Click to upload, or drag & drop</p>
-                    <p className="text-xs">JPG, PNG, WEBP, MP4, WebM</p>
+            <section className="bg-card border rounded-xl p-5 space-y-6">
+              <h2 className="font-semibold text-foreground text-sm uppercase tracking-wide border-b pb-2">6. Media</h2>
+              <div className="space-y-4">
+                <p className="text-xs text-muted-foreground">Tip: Drag & drop or paste images/videos anywhere!</p>
+                <div
+                  className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${isDragging ? "border-primary bg-primary/5 scale-[0.99]" : "hover:border-primary hover:bg-muted/50"}`}
+                  onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop}
+                >
+                  {uploadingCount > 0 ? (
+                    <div className="flex flex-col items-center gap-3 text-muted-foreground"><Loader2 className="w-10 h-10 animate-spin text-primary" /><p className="text-sm font-medium">Uploading {uploadingCount} files...</p></div>
+                  ) : isDragging ? (
+                    <div className="flex flex-col items-center gap-3 text-primary"><Upload className="w-10 h-10 animate-bounce" /><p className="text-sm font-bold">Drop files here</p></div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                      <div className="relative">
+                        <ImagePlus className="w-10 h-10 opacity-40" />
+                        <Film className="w-6 h-6 opacity-40 absolute -bottom-1 -right-1 bg-background rounded-sm" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-foreground">Click to upload, or drag & drop</p>
+                        <p className="text-xs">JPG, PNG, WEBP, MP4, WebM (Max 50MB)</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
+
+                {uploadedImages.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Photos ({uploadedImages.length})</h3>
+                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                      {uploadedImages.map((path, i) => (
+                        <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted group border shadow-sm">
+                          <img src={`/api/storage${path}`} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                          <button type="button" onClick={() => setUploadedImages(prev => prev.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"><X className="w-3 h-3" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {uploadedVideos.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Videos ({uploadedVideos.length})</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {uploadedVideos.map((path, i) => (
+                        <div key={i} className="relative aspect-video rounded-lg overflow-hidden bg-muted group border shadow-sm">
+                          <video src={`/api/storage${path}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <Film className="w-6 h-6 text-white" />
+                          </div>
+                          <button type="button" onClick={() => setUploadedVideos(prev => prev.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"><X className="w-3 h-3" /></button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileChange} />
-
-              {uploadedImages.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase">Photos</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {uploadedImages.map((path, i) => (
-                      <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
-                        <img src={`/api/storage${path}`} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => setUploadedImages(prev => prev.filter((_, j) => j !== i))} className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"><X className="w-3 h-3" /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {uploadedVideos.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase">Videos</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {uploadedVideos.map((path, i) => (
-                      <div key={i} className="relative w-32 h-20 rounded-lg overflow-hidden bg-muted">
-                        <video src={`/api/storage${path}`} className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => setUploadedVideos(prev => prev.filter((_, j) => j !== i))} className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"><X className="w-3 h-3" /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </section>
 
-            <Button type="submit" className="w-full" disabled={createMutation.isPending || updateMutation.isPending || uploadingCount > 0}>
-              {(createMutation.isPending || updateMutation.isPending) ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><Upload className="w-4 h-4 mr-2" /> {isEditing ? "Update Listing" : "Save Listing"}</>}
-            </Button>
+            <div className="sticky bottom-4 z-10 sm:static">
+              <Button type="submit" size="lg" className="w-full shadow-lg" disabled={createMutation.isPending || updateMutation.isPending || uploadingCount > 0}>
+                {(createMutation.isPending || updateMutation.isPending) ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Saving...</> : <><Upload className="w-5 h-5 mr-2" /> {isEditing ? "Update Listing" : "Save Listing"}</>}
+              </Button>
+            </div>
           </form>
         </Form>
       </div>

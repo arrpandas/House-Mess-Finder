@@ -43,14 +43,13 @@ import {
   Wind,
   Leaf,
   Layers,
-  ArrowUpDown,
-  Sofa,
   Clock,
-  UserCheck,
   Droplets,
   Flame,
   Edit,
   MessageCircle,
+  Banknote,
+  Calendar,
 } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
@@ -107,11 +106,13 @@ export default function ListingDetail() {
     const text = [
       `Location: ${listing.location} (${listing.category})`,
       `Rent: ৳${Number(listing.rent).toLocaleString()}/mo${listing.isNegotiable ? " (Negotiable)" : ""}`,
+      listing.advanceDeposit ? `Advance: ${listing.advanceDeposit}` : null,
+      listing.availableFrom ? `Available From: ${listing.availableFrom}` : null,
       serviceCharge > 0 ? `Service Charge: ৳${serviceCharge.toLocaleString()}/mo` : null,
       billsTotal > 0 ? `Bills: ৳${billsTotal.toLocaleString()}/mo` : null,
       `Total: ৳${grandTotal.toLocaleString()}/mo`,
       `Bathroom: ${listing.bathroom}`,
-      listing.floor != null ? `Floor: ${listing.floor}` : null,
+      listing.floor ? `Floor: ${listing.floor}` : null,
       listing.furnished ? `Furnished: ${listing.furnished}` : null,
       listing.hasLift ? "Lift: Yes" : null,
       listing.hasBalcony ? "Balcony: Yes" : null,
@@ -333,10 +334,10 @@ export default function ListingDetail() {
               <Bath className="w-4 h-4 text-primary" />
               <span>{listing.bathroom} Bathroom</span>
             </div>
-            {listing.floor != null && (
+            {listing.floor && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Layers className="w-4 h-4 text-primary" />
-                <span>Floor {listing.floor}</span>
+                <span>{listing.floor.includes("floor") ? listing.floor : `Floor ${listing.floor}`}</span>
               </div>
             )}
             {listing.roommates != null && (
@@ -355,6 +356,18 @@ export default function ListingDetail() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4 text-primary" />
                 <span>{listing.timeLimit}</span>
+              </div>
+            )}
+            {listing.advanceDeposit && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Banknote className="w-4 h-4 text-primary" />
+                <span>Advance: {listing.advanceDeposit}</span>
+              </div>
+            )}
+            {listing.availableFrom && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span>Available: {listing.availableFrom}</span>
               </div>
             )}
           </div>

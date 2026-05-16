@@ -7,6 +7,7 @@
  */
 
 export interface ContactInfo {
-  name: string;
+  /** @nullable */
+  name?: string | null;
   mobile: string;
 }
