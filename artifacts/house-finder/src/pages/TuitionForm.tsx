@@ -17,9 +17,6 @@ export default function TuitionForm() {
             <Button variant="ghost" size="sm" onClick={() => setLocation("/tuition-tracker")}>
               Back
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setLocation("/")}>
-              House Hunting Dashboard
-            </Button>
           </div>
           <h1 className="text-lg font-bold text-foreground">
             {isEditing ? "Edit Tuition" : "Add Tuition"}

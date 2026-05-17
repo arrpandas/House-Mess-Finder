@@ -48,6 +48,7 @@ import {
   Sofa,
   Clock,
 } from "lucide-react";
+import AppMenu from "@/components/AppMenu";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Sublet: "bg-blue-100 text-blue-800",
@@ -119,11 +120,7 @@ export default function Dashboard() {
             <h1 className="text-xl font-bold text-foreground">House Hunting Tracker</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/tuition-tracker">
-              <Button variant="outline" size="sm" data-testid="button-tuition-tracker">
-                Tuition Tracker
-              </Button>
-            </Link>
+            <AppMenu />
             <Link href="/listings/new">
               <Button data-testid="button-add-listing">
                 <Plus className="w-4 h-4 mr-2" />
