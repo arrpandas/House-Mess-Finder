@@ -11,10 +11,12 @@ export default function TuitionTracker() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/" )}>
-            Back
-          </Button>
-          <h1 className="text-lg font-bold text-foreground">Tuition Tracker</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/" )}>
+              Back
+            </Button>
+            <h1 className="text-lg font-bold text-foreground">Tuition Tracker</h1>
+          </div>
           <div className="w-24" />
         </div>
       </header>
