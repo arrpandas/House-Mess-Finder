@@ -30,6 +30,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/tuition-tracker" component={TuitionTracker} />
+      <Route path="/tuition-tracker/new" component={TuitionForm} />
+      <Route path="/tuition-tracker/:id" component={TuitionForm} />
       <Route path="/listings/new" component={ListingForm} />
       <Route path="/listings/:id" component={ListingDetail} />
       <Route path="/listings/:id/edit" component={ListingForm} />

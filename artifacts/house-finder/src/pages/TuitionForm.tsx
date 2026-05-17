@@ -13,9 +13,14 @@ export default function TuitionForm() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/tuition-tracker")}>
-            Back
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/tuition-tracker")}>
+              Back
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setLocation("/")}>
+              House Hunting Dashboard
+            </Button>
+          </div>
           <h1 className="text-lg font-bold text-foreground">
             {isEditing ? "Edit Tuition" : "Add Tuition"}
           </h1>
