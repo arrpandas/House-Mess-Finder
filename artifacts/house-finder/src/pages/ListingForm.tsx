@@ -84,8 +84,6 @@ const formSchema = z.object({
   billsWaste: z.coerce.number().optional().or(z.literal("")),
   billsGas: z.coerce.number().optional().or(z.literal("")),
   billsWater: z.coerce.number().optional().or(z.literal("")),
-  billsStructure: z.enum(["Itemized", "Fixed/Combined Bill", "Included in Rent"]).default("Itemized"),
-  combinedBillsAmount: z.coerce.number().optional().or(z.literal("")),
   contactName: z.string().optional().or(z.literal("")),
   contactMobile: z.string().min(1, "Contact mobile is required"),
 

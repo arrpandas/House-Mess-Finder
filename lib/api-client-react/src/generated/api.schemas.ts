@@ -60,6 +60,15 @@ export const ListingPropertyAvailabilityStatus = {
   My_Final_Choice: 'My Final Choice',
 } as const;
 
+export type ListingBillsStructure = typeof ListingBillsStructure[keyof typeof ListingBillsStructure];
+
+
+export const ListingBillsStructure = {
+  Itemized: 'Itemized',
+  'Fixed/Combined_Bill': 'Fixed/Combined Bill',
+  Included_in_Rent: 'Included in Rent',
+} as const;
+
 export type ListingBathroom = typeof ListingBathroom[keyof typeof ListingBathroom];
 
 
@@ -90,6 +99,9 @@ export interface Listing {
   /** @nullable */
   finalNegotiatedRent?: number | null;
   propertyAvailabilityStatus?: ListingPropertyAvailabilityStatus;
+  billsStructure?: ListingBillsStructure;
+  /** @nullable */
+  combinedBillsAmount?: number | null;
   bills: Bills;
   bathroom: ListingBathroom;
   /** @nullable */
@@ -180,6 +192,15 @@ export const ListingInputFurnished = {
   Fully_furnished: 'Fully furnished',
 } as const;
 
+export type ListingInputBillsStructure = typeof ListingInputBillsStructure[keyof typeof ListingInputBillsStructure];
+
+
+export const ListingInputBillsStructure = {
+  Itemized: 'Itemized',
+  'Fixed/Combined_Bill': 'Fixed/Combined Bill',
+  Included_in_Rent: 'Included in Rent',
+} as const;
+
 export interface ListingInput {
   location: string;
   category: ListingInputCategory;
@@ -219,6 +240,9 @@ export interface ListingInput {
   timeLimit?: string | null;
   /** @nullable */
   furnished?: ListingInputFurnished;
+  billsStructure?: ListingInputBillsStructure;
+  /** @nullable */
+  combinedBillsAmount?: number | null;
   pros?: string[];
   cons?: string[];
   images?: string[];
@@ -278,6 +302,15 @@ export const ListingUpdateFurnished = {
   Fully_furnished: 'Fully furnished',
 } as const;
 
+export type ListingUpdateBillsStructure = typeof ListingUpdateBillsStructure[keyof typeof ListingUpdateBillsStructure];
+
+
+export const ListingUpdateBillsStructure = {
+  Itemized: 'Itemized',
+  'Fixed/Combined_Bill': 'Fixed/Combined Bill',
+  Included_in_Rent: 'Included in Rent',
+} as const;
+
 export interface ListingUpdate {
   location?: string;
   category?: ListingUpdateCategory;
@@ -317,6 +350,9 @@ export interface ListingUpdate {
   timeLimit?: string | null;
   /** @nullable */
   furnished?: ListingUpdateFurnished;
+  billsStructure?: ListingUpdateBillsStructure;
+  /** @nullable */
+  combinedBillsAmount?: number | null;
   pros?: string[];
   cons?: string[];
   images?: string[];

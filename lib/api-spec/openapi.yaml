@@ -415,6 +415,11 @@ components:
         furnished:
           type: ["string", "null"]
           enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
+        billsStructure:
+          type: string
+          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
+        combinedBillsAmount:
+          type: ["number", "null"]
         pros:
           type: array
           items:
@@ -510,6 +515,11 @@ components:
         furnished:
           type: ["string", "null"]
           enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
+        billsStructure:
+          type: string
+          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
+        combinedBillsAmount:
+          type: ["number", "null"]
         pros:
           type: array
           items:
