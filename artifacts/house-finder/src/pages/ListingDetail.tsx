@@ -10,6 +10,8 @@ import { getListListingsQueryKey } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { negotiationStatusMeta, propertyAvailabilityStatusMeta } from "@/lib/negotiationMeta";
+import PageHeader from "@/components/PageHeader";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -197,13 +199,16 @@ export default function ListingDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/")} data-testid="button-back-detail">
+      <PageHeader
+        title={""}
+        left={
+          <Button variant="ghost" size="sm" onClick={() => setLocation("/" )} data-testid="button-back-detail">
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back
           </Button>
-          <div className="flex items-center gap-2">
+        }
+        right={
+          <>
             <Button variant="outline" size="sm" onClick={() => setLocation(`/listings/${listing.id}/edit`)} data-testid="button-edit-detail">
               <Edit className="w-4 h-4 mr-2" />
               Edit
@@ -247,9 +252,11 @@ export default function ListingDetail() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        containerClassName="max-w-4xl mx-auto px-4 sm:px-6"
+      />
+
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {/* Images */}

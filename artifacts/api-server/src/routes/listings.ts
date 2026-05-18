@@ -68,8 +68,6 @@ router.get("/listings", async (req, res): Promise<void> => {
     rent: Number(r.rent),
     advanceDeposit: r.advanceDeposit != null ? Number(r.advanceDeposit) : null,
     serviceCharge: r.serviceCharge != null ? Number(r.serviceCharge) : null,
-    finalNegotiatedRent: r.finalNegotiatedRent != null ? Number(r.finalNegotiatedRent) : null,
-    combinedBillsAmount: r.combinedBillsAmount != null ? Number(r.combinedBillsAmount) : null,
     bills: r.bills as Record<string, number>,
     contactInfo: r.contactInfo as { name: string; mobile: string },
     pros: r.pros ?? [],
@@ -94,9 +92,6 @@ router.post("/listings", async (req, res): Promise<void> => {
     category,
     rent,
     isNegotiable,
-    negotiationStatus,
-    finalNegotiatedRent,
-    propertyAvailabilityStatus,
     bills,
     bathroom,
     roommates,
@@ -105,8 +100,6 @@ router.post("/listings", async (req, res): Promise<void> => {
     advanceDeposit,
     availableFrom,
     serviceCharge,
-    billsStructure,
-    combinedBillsAmount,
     hasLift,
     hasBalcony,
     hasChadAccess,
@@ -137,10 +130,6 @@ router.post("/listings", async (req, res): Promise<void> => {
       category,
       rent: String(rent),
       isNegotiable: isNegotiable ?? false,
-      negotiationStatus: negotiationStatus ?? undefined,
-      finalNegotiatedRent:
-        finalNegotiatedRent != null ? String(finalNegotiatedRent) : null,
-      propertyAvailabilityStatus: propertyAvailabilityStatus ?? undefined,
       bills: bills ?? {},
       bathroom,
       roommates: roommates ?? null,
@@ -149,8 +138,6 @@ router.post("/listings", async (req, res): Promise<void> => {
       advanceDeposit: advanceDeposit != null ? String(advanceDeposit) : null,
       availableFrom: availableFrom ?? null,
       serviceCharge: serviceCharge != null ? String(serviceCharge) : null,
-      billsStructure: billsStructure ?? "Itemized",
-      combinedBillsAmount: combinedBillsAmount != null ? String(combinedBillsAmount) : null,
       hasLift: hasLift ?? false,
       hasBalcony: hasBalcony ?? false,
       hasChadAccess: hasChadAccess ?? false,
@@ -179,8 +166,6 @@ router.post("/listings", async (req, res): Promise<void> => {
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
-    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
-    combinedBillsAmount: row.combinedBillsAmount != null ? Number(row.combinedBillsAmount) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],
@@ -213,8 +198,6 @@ router.get("/listings/:id", async (req, res): Promise<void> => {
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
-    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
-    combinedBillsAmount: row.combinedBillsAmount != null ? Number(row.combinedBillsAmount) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],
@@ -244,12 +227,6 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.category !== undefined) updates.category = d.category;
   if (d.rent !== undefined) updates.rent = String(d.rent);
   if (d.isNegotiable !== undefined) updates.isNegotiable = d.isNegotiable;
-  if (d.negotiationStatus !== undefined) updates.negotiationStatus = d.negotiationStatus;
-  if (d.finalNegotiatedRent !== undefined)
-    updates.finalNegotiatedRent =
-      d.finalNegotiatedRent != null ? String(d.finalNegotiatedRent) : null;
-  if (d.propertyAvailabilityStatus !== undefined)
-    updates.propertyAvailabilityStatus = d.propertyAvailabilityStatus;
   if (d.bills !== undefined) updates.bills = d.bills;
   if (d.bathroom !== undefined) updates.bathroom = d.bathroom;
 
@@ -273,8 +250,6 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
   if (d.hasMealSystem !== undefined) updates.hasMealSystem = d.hasMealSystem;
   if (d.timeLimit !== undefined) updates.timeLimit = d.timeLimit;
   if (d.furnished !== undefined) updates.furnished = d.furnished;
-  if (d.billsStructure !== undefined) updates.billsStructure = d.billsStructure;
-  if (d.combinedBillsAmount !== undefined) updates.combinedBillsAmount = d.combinedBillsAmount != null ? String(d.combinedBillsAmount) : null;
   if (d.pros !== undefined) updates.pros = d.pros;
   if (d.cons !== undefined) updates.cons = d.cons;
   if (d.images !== undefined) updates.images = d.images;
@@ -298,8 +273,6 @@ router.patch("/listings/:id", async (req, res): Promise<void> => {
     rent: Number(row.rent),
     advanceDeposit: row.advanceDeposit != null ? Number(row.advanceDeposit) : null,
     serviceCharge: row.serviceCharge != null ? Number(row.serviceCharge) : null,
-    finalNegotiatedRent: row.finalNegotiatedRent != null ? Number(row.finalNegotiatedRent) : null,
-    combinedBillsAmount: row.combinedBillsAmount != null ? Number(row.combinedBillsAmount) : null,
     bills: row.bills as Record<string, number>,
     contactInfo: row.contactInfo as { name: string; mobile: string },
     pros: row.pros ?? [],

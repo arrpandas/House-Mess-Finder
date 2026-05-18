@@ -1,12 +1,11 @@
-import type React from "react";
-
-
 type PageHeaderProps = {
-  title: React.ReactNode;
+  title: import("react").ReactNode;
+
   left?: React.ReactNode;
   right?: React.ReactNode;
   containerClassName?: string;
 };
+
 
 export default function PageHeader({
   title,

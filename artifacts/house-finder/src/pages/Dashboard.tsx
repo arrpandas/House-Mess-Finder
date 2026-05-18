@@ -49,6 +49,8 @@ import {
   Clock,
 } from "lucide-react";
 import AppMenu from "@/components/AppMenu";
+import PageHeader from "@/components/PageHeader";
+
 
 const CATEGORY_COLORS: Record<string, string> = {
   Sublet: "bg-blue-100 text-blue-800",
@@ -113,13 +115,11 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Home className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">House Hunting Tracker</h1>
-          </div>
-          <div className="flex items-center gap-2">
+      <PageHeader
+        title={"House Hunting Tracker"}
+        left={<Home className="w-6 h-6 text-primary" />}
+        right={
+          <>
             <AppMenu />
             <Link href="/listings/new">
               <Button data-testid="button-add-listing">
@@ -127,10 +127,10 @@ export default function Dashboard() {
                 Add Listing
               </Button>
             </Link>
-          </div>
+          </>
+        }
+      />
 
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Summary Cards */}

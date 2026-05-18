@@ -250,19 +250,6 @@ components:
           type: number
         isNegotiable:
           type: boolean
-        negotiationStatus:
-          type: string
-          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
-        finalNegotiatedRent:
-          type: ["number", "null"]
-        propertyAvailabilityStatus:
-          type: string
-          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
-        billsStructure:
-          type: string
-          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
-        combinedBillsAmount:
-          type: ["number", "null"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:
@@ -361,14 +348,6 @@ components:
           type: number
         isNegotiable:
           type: boolean
-        negotiationStatus:
-          type: string
-          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
-        finalNegotiatedRent:
-          type: ["number", "null"]
-        propertyAvailabilityStatus:
-          type: string
-          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:
@@ -415,11 +394,6 @@ components:
         furnished:
           type: ["string", "null"]
           enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
-        billsStructure:
-          type: string
-          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
-        combinedBillsAmount:
-          type: ["number", "null"]
         pros:
           type: array
           items:
@@ -461,14 +435,6 @@ components:
           type: number
         isNegotiable:
           type: boolean
-        negotiationStatus:
-          type: string
-          enum: ["Not Started","In Discussion","Offered Made","Rejected/Declined"]
-        finalNegotiatedRent:
-          type: ["number", "null"]
-        propertyAvailabilityStatus:
-          type: string
-          enum: ["Available","Visited & Shortlisted","Booked/Rented Out","My Final Choice"]
         bills:
           $ref: "#/components/schemas/Bills"
         bathroom:
@@ -515,11 +481,6 @@ components:
         furnished:
           type: ["string", "null"]
           enum: ["Unfurnished", "Semi-furnished", "Fully furnished", null]
-        billsStructure:
-          type: string
-          enum: ["Itemized", "Fixed/Combined Bill", "Included in Rent"]
-        combinedBillsAmount:
-          type: ["number", "null"]
         pros:
           type: array
           items:

@@ -1,6 +1,8 @@
 import { useLocation } from "wouter";
 import { useCompare } from "@/lib/compare-context";
 import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/PageHeader";
+
 import { ArrowLeft, X, Home, Bath, Users, Ruler, MapPin, Phone, CheckCircle, XCircle, Layers, Clock, Sofa, Banknote, Calendar } from "lucide-react";
 
 function totalBills(bills: Record<string, number | null | undefined>): number {
@@ -67,20 +69,21 @@ export default function Compare() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} data-testid="button-back-compare">
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-            <h1 className="text-lg font-bold text-foreground">Compare Listings</h1>
-          </div>
+      <PageHeader
+        title={"Compare Listings"}
+        left={
+          <Button variant="ghost" size="sm" onClick={() => setLocation("/" )} data-testid="button-back-compare">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back
+          </Button>
+        }
+        right={
           <Button variant="outline" size="sm" onClick={clearSelection} data-testid="button-clear-compare">
             Clear All
           </Button>
-        </div>
-      </header>
+        }
+      />
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 overflow-x-auto">
         <table className="w-full border-collapse border rounded-xl overflow-hidden bg-card shadow-sm" data-testid="table-compare">
